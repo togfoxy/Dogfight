@@ -9,8 +9,12 @@ function cmp.init()
     concord.component("drawable")   -- will be drawn during love.draw()
     concord.component("isSelected") -- clicked by the mouse
 
-     concord.component("position", function(c)
-        c.radius = 10            -- the size of the entity
+    concord.component("position", function(c, rad)
+        if rad == nil then
+            c.radius = 10            -- the size of the entity
+        else
+            c.radius = rad
+        end
     end)
 
     concord.component("facing", function(c, deg)
@@ -38,6 +42,18 @@ function cmp.init()
        c.fConsumpption = 100
        c.turnrate = 60      -- degrees
    end)
+
+   concord.component("projectile")
+   concord.component("gun_projectile", function(c)
+       c.mass = 100
+       c.hitpoints = 100
+       c.force = 100        -- speed of bullet
+       c.ammoRemaining = 100
+       c.ammoMass = 1          -- each
+       c.active = true         -- set to TRUE to make it shoot
+       c.timer = 0              -- frequency of shot
+   end)
+
 end
 
 return cmp

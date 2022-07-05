@@ -82,12 +82,38 @@ function beginContact(a, b, coll)
 	local entity1, entity2
 	local uid1 = a:getUserData()
 	local uid2 = b:getUserData()
+	local entity1isborder = false
+	local entity2isborder = false
 	assert(uid1 ~= nil)
 	assert(uid2 ~= nil)
 
-	if string.sub(uid1, 1, 6) == "BORDER" or string.sub(uid2, 1, 6) == "BORDER" then
-		-- collisin is with border. Do nothing.
+	if string.sub(uid1, 1, 6) == "BORDER" then
+		entity1isborder = true
+	end
+	if string.sub(uid2, 1, 6) == "BORDER" then
+		entity2isborder = true
+	end
+
+	if entity1isborder or entity2isborder then
+		-- collision is with border. Do nothing.
+		if entity1isborder then
+			entity2 = fun.getEntity(uid2)
+			if not entity2:has("engine") then
+				-- entity2 has hit a border with no engines. It must be a projectile or similar
+				-- destroy
+				fun.killEntity(entity2)
+			end
+		end
+		if entity2isborder then
+			entity1 = fun.getEntity(uid1)
+			if not entity1:has("engine") then
+				-- entity1 has hit a border with no engines. It must be a projectile or similar
+				-- destroy
+				fun.killEntity(entity1)
+			end
+		end
 	else
+		-- legit collision
 		entity1 = fun.getEntity(uid1)
 		entity2 = fun.getEntity(uid2)
 		assert(entity1 ~= nil)
@@ -199,6 +225,8 @@ function love.update(dt)
 
 	ECSWORLD:emit("update", dt)
 	ECSWORLD:emit("facing", dt)
+	-- ECSWORLD:emit("targeting", dt)
+	ECSWORLD:emit("shooting", dt)
 	ECSWORLD:emit("engines", dt)
 
 	PHYSICSWORLD:update(dt) --this puts the world into motion

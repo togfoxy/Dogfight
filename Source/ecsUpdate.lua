@@ -1,36 +1,6 @@
 ecsUpdate = {}
 
-local function killEntity(entity)
-    -- unit test
-    local ecsOrigsize = #ECS_ENTITIES
-    local physicsOrigsize = #PHYSICS_ENTITIES
-    --
 
-    -- destroy the body then remove empty body from the array
-    for i = 1, #PHYSICS_ENTITIES do
-        if PHYSICS_ENTITIES[i].fixture:getUserData() == entity.uid.value then     --!
-            PHYSICS_ENTITIES[i].body:destroy()
-            table.remove(PHYSICS_ENTITIES, i)
-            break
-        end
-    end
-
-    -- remove the entity from the arrary
-    for i = 1, #ECS_ENTITIES do
-        if ECS_ENTITIES[i] == entity then
-            table.remove(ECS_ENTITIES, i)
-            break
-        end
-    end
-
-    -- destroy the entity
-    entity:destroy()
-    print("Entity removed.")
-
-    -- unit test
-    assert(#ECS_ENTITIES < ecsOrigsize)
-    assert(#PHYSICS_ENTITIES < physicsOrigsize)
-end
 
 local function getNewFacing(entity, dt)
 
@@ -119,9 +89,45 @@ function ecsUpdate.init()
                 entity.facing.desiredfacing = love.math.random(0,359)
                 entity.facing.timer = 5     -- seconds
             end
-            entity.facing.value = getNewFacing(entity, dt)
+            if entity:has("engine") then
+                entity.facing.value = getNewFacing(entity, dt)
+            end
         end
     end
     ECSWORLD:addSystems(systemFacing)
+
+    systemShooting = concord.system({
+        pool = {"gun_projectile"}
+    })
+    function systemShooting:shooting(dt)
+        for _, entity in ipairs(self.pool) do
+            entity.gun_projectile.timer = entity.gun_projectile.timer - dt
+            if entity.gun_projectile.timer <= 0 then
+                entity.gun_projectile.timer = 1
+
+                -- create a projectile entity
+                local newEntity = fun.addProjectile(entity)
+                -- apply an impulse immediately
+
+                local x,y = fun.getBodyXY(entity.uid.value)
+                -- add radius + 1 in the direction of facing
+                local facing = entity.facing.value
+                local distance = entity.position.radius + 100
+                local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
+
+                local impulsevectorx, impulsevectory
+                impulsevectorx = newx - x
+                impulsevectory = newy - y
+                local scale = 100000000
+                newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
+                --newEntity.body:setLinearVelocity(impulsevectorx * scale, impulsevectory * scale)
+
+                print(newEntity.body:getLinearVelocity())
+
+
+            end
+        end
+    end
+    ECSWORLD:addSystems(systemShooting)
 end
 return ecsUpdate
