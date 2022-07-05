@@ -27,8 +27,12 @@ function ecsDraw.init()
                     red, green, blue = 0,1,0
                 end
             else
-                -- border
-                red, green, blue = 0,0,1
+                if entity:has("projectile") then
+                    red, green, blue = 1,1,1
+                else
+                    -- border
+                    red, green, blue = 0,0,1
+                end
             end
 
             love.graphics.setColor(red, green, blue, 1)
