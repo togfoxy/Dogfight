@@ -129,4 +129,31 @@ function functions.getEntity(uid)
     return nil
 end
 
+function functions.damageEntity(victim, ordinance)
+    -- the victime (ecs entity) is damaged by ordinance (ecs entity)
+
+    local damageinflicted
+    if ordinance:has("projectile") then
+        damageinflicted = love.math.random(ordinance.projectile.mindamage, ordinance.projectile.maxdamage)
+    elseif ordinance:has("missile") then
+        damageinflicted = love.math.random(ordinance.missile.mindamage, ordinance.missile.maxdamage)
+    end
+
+    -- choose a random component
+    local allcomponents = victim:getComponents()
+    --print(inspect(allcomponents))
+    --print("``````````````````")
+    for k, v in pairs(victim:getComponents()) do
+        print("Name: " .. v.__name)
+        if v.hitpoints ~= nil then
+            print("Hitpoints: " .. v.hitpoints)
+        end
+        -- print(inspect(v))
+        print("------------")
+    end
+
+    error()
+
+end
+
 return functions

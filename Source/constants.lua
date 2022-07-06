@@ -4,7 +4,7 @@ function constants.load()
     -- constants and globals
 
 
-    INITAL_NUMBER_OF_ENTITIES = 2
+    INITAL_NUMBER_OF_ENTITIES = 20
     BOX2D_SCALE = 5
     ECS_ENTITIES = {}
     ECS_ENTITIES_PROJECTILES = {}
