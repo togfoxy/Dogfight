@@ -63,8 +63,9 @@ function love.wheelmoved(x, y)
 	if y < 0 then
 		ZOOMFACTOR = ZOOMFACTOR - 0.1
 	end
-	if ZOOMFACTOR < 0.8 then ZOOMFACTOR = 0.8 end
+	if ZOOMFACTOR < 0.5 then ZOOMFACTOR = 0.5 end
 	if ZOOMFACTOR > 4 then ZOOMFACTOR = 4 end
+	print("Zoom factor = " .. ZOOMFACTOR)
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
@@ -101,7 +102,7 @@ function beginContact(a, b, coll)
 			if entity2 == nil then
 				-- entity already destroyed. Do nothing
 			else
-				if not entity2:has("engine") then
+				if not entity2:has("vessel") then
 					-- entity2 has hit a border with no engines. It must be a projectile or similar
 					-- destroy
 					fun.killEntity(entity2)
@@ -110,18 +111,29 @@ function beginContact(a, b, coll)
 		end
 		if entity2isborder then
 			entity1 = fun.getEntity(uid1)
-			if not entity1:has("engine") then
-				-- entity1 has hit a border with no engines. It must be a projectile or similar
-				-- destroy
-				fun.killEntity(entity1)
+			if entity1 ~= nil then
+				if not entity1:has("vessel") then
+					-- entity1 has hit a border with no engines. It must be a projectile or similar
+					-- destroy
+					fun.killEntity(entity1)
+				end
 			end
 		end
 	else
 		-- legit collision
-		entity1 = fun.getEntity(uid1)
-		entity2 = fun.getEntity(uid2)
-		assert(entity1 ~= nil)
-		assert(entity2 ~= nil)
+		local physEntity1 = a:getBody()	-- a and b are fixtures. Return the parent body
+		local physEntity2 = b:getBody()
+		local acelx1, acely1 = physEntity1:getLinearVelocity()
+		local acelx2, acely2 = physEntity2:getLinearVelocity()
+
+		local acel1 = cf.GetDistance(physEntity1:getX(), physEntity1:getY(), acelx1, acely1)
+		local acel2 = cf.GetDistance(physEntity2:getX(), physEntity2:getY(), acelx2, acely2)
+
+		local force1 = physEntity1:getMass() * acel1
+		local force2 = physEntity2:getMass() * acel2
+
+		print("Impact:", force1, force2)
+
 	end
 end
 

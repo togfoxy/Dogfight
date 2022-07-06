@@ -4,6 +4,7 @@ function functions.addEntity()
     -- adds one ENTITIES to the AGENTS arrary
 
     local entity = concord.entity(ECSWORLD)
+    :give("vessel")
     :give("drawable")
     :give("position", 2)
     :give("uid")
@@ -34,8 +35,9 @@ end
 function functions.addProjectile(parentEntity)
     -- parent entity is the shooter creating this entity
     local entity = concord.entity(ECSWORLD)
+    :give("projectile")
     :give("drawable")
-    :give("position", 1)
+    :give("position", 0.25)
     :give("uid")
     :give("projectile")
 
@@ -50,9 +52,8 @@ function functions.addProjectile(parentEntity)
     local x,y = fun.getBodyXY(parentEntity.uid.value)
     -- add radius + 1 in the direction of facing
     local facing = parentEntity.facing.value
-    local distance = parentEntity.position.radius * 1
+    local distance = parentEntity.position.radius + 2
     local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
-
 
     local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, newx, newy, "dynamic")

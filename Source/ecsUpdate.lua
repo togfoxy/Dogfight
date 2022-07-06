@@ -103,7 +103,7 @@ function ecsUpdate.init()
         for _, entity in ipairs(self.pool) do
             entity.gun_projectile.timer = entity.gun_projectile.timer - dt
             if entity.gun_projectile.timer <= 0 then
-                entity.gun_projectile.timer = 1
+                entity.gun_projectile.timer = 4
 
                 -- create a projectile entity
                 local newEntity = fun.addProjectile(entity)
@@ -125,10 +125,6 @@ function ecsUpdate.init()
                 newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
                 -- newEntity.body:setLinearVelocity(10000000, 10000000)
                 -- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
-
-    print(newEntity.body:getLinearVelocity())
-
-
             end
         end
     end

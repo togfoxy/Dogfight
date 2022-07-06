@@ -8,6 +8,10 @@ function cmp.init()
 
     concord.component("drawable")   -- will be drawn during love.draw()
     concord.component("isSelected") -- clicked by the mouse
+    concord.component("vessel")
+    concord.component("projectile")
+    concord.component("missile")
+    
 
     concord.component("position", function(c, rad)
         if rad == nil then
@@ -47,7 +51,6 @@ function cmp.init()
         end
    end)
 
-   concord.component("projectile")
    concord.component("gun_projectile", function(c)
        c.mass = 100
        c.hitpoints = 100

@@ -22,6 +22,24 @@ function AddVectorToPoint(x,y,headingdegrees,distance)
 	return (x + xdelta), (y + ydelta)		-- 0 = NORTH!
 end
 
+function GetDistance(x1, y1, x2, y2)
+	-- this is real distance in pixels
+	-- receives two coordinate pairs (not vectors)
+	-- returns a single number
+
+	if (x1 == nil) or (y1 == nil) or (x2 == nil) or (y2 == nil) then return 0 end
+
+    local horizontal_distance = x1 - x2
+    local vertical_distance = y1 - y2
+    --Both of these work
+    local a = horizontal_distance * horizontal_distance
+    local b = vertical_distance ^2
+
+    local c = a + b
+    local distance = math.sqrt(c)
+    return distance
+end
+
 function deepcopy(orig, copies)
 	-- copies one array to another array
 	-- ** important **
@@ -67,23 +85,7 @@ function rotate_180(m)
    return rotate_CCW_90(rotate_CCW_90(m))
 end
 
-function GetDistance(x1, y1, x2, y2)
-	-- this is real distance in pixels
-	-- receives two coordinate pairs (not vectors)
-	-- returns a single number
 
-	if (x1 == nil) or (y1 == nil) or (x2 == nil) or (y2 == nil) then return 0 end
-
-    local horizontal_distance = x1 - x2
-    local vertical_distance = y1 - y2
-    --Both of these work
-    local a = horizontal_distance * horizontal_distance
-    local b = vertical_distance ^2
-
-    local c = a + b
-    local distance = math.sqrt(c)
-    return distance
-end
 function SubtractVectors(x1,y1,x2,y2)
 	-- subtracts vector2 from vector1 i.e. v1 - v2
 	-- returns a vector (an x/y pair)
