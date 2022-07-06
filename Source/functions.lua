@@ -10,12 +10,14 @@ function functions.addEntity()
     :give("facing", love.math.random(0,359))
     :give("engine")
     :give("chassis")
-    :give("gun_projectile")
+    -- :give("gun_projectile")
 
     table.insert(ECS_ENTITIES, entity)
 
     local rndx = love.math.random(50, WORLD_WIDTH - 50)
     local rndy = love.math.random(50, SCREEN_HEIGHT - 50)
+    local rndx = rndx / BOX2D_SCALE
+    local rndy = rndy / BOX2D_SCALE
     local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, rndx, rndy,"dynamic")
 	physicsEntity.body:setLinearDamping(0)
@@ -55,7 +57,7 @@ function functions.addProjectile(parentEntity)
     local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, newx, newy, "dynamic")
     physicsEntity.body:setLinearDamping(0)
-    physicsEntity.body:setMass(RADIUSMASSRATIO * 1)
+    physicsEntity.body:setMass(1)
     physicsEntity.shape = love.physics.newCircleShape(1)
     physicsEntity.fixture = love.physics.newFixture(physicsEntity.body, physicsEntity.shape, 1)		-- the 1 is the density
     physicsEntity.fixture:setRestitution(0)

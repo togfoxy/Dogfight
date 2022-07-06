@@ -154,30 +154,36 @@ function love.load()
 
 	-- bottom border
 	PHYSICSBORDER1 = {}
-    PHYSICSBORDER1.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH / 2, SCREEN_HEIGHT - 10, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER1.shape = love.physics.newRectangleShape(WORLD_WIDTH, 5) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH / 2) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT - 10) / BOX2D_SCALE
+    PHYSICSBORDER1.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER1.shape = love.physics.newRectangleShape(WORLD_WIDTH / BOX2D_SCALE, 5) --make a rectangle with a width of this
     PHYSICSBORDER1.fixture = love.physics.newFixture(PHYSICSBORDER1.body, PHYSICSBORDER1.shape) --attach shape to body
 	PHYSICSBORDER1.fixture:setUserData("BORDERBOTTOM")
 	-- top border
 	PHYSICSBORDER2 = {}
-    PHYSICSBORDER2.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH / 2, 10, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER2.shape = love.physics.newRectangleShape(WORLD_WIDTH, 5) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH / 2) / BOX2D_SCALE
+	local y = (10) / BOX2D_SCALE
+    PHYSICSBORDER2.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER2.shape = love.physics.newRectangleShape(WORLD_WIDTH / BOX2D_SCALE, 5) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER2.fixture = love.physics.newFixture(PHYSICSBORDER2.body, PHYSICSBORDER2.shape) --attach shape to body
 	PHYSICSBORDER2.fixture:setUserData("BORDERTOP")
 	-- left border
 	PHYSICSBORDER3 = {}
-    PHYSICSBORDER3.body = love.physics.newBody(PHYSICSWORLD, 10, SCREEN_HEIGHT / 2, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER3.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT) --make a rectangle with a width of 650 and a height of 50
+	local x = (10) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT / 2) / BOX2D_SCALE
+    PHYSICSBORDER3.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER3.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT / BOX2D_SCALE) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER3.fixture = love.physics.newFixture(PHYSICSBORDER3.body, PHYSICSBORDER3.shape) --attach shape to body
 	PHYSICSBORDER3.fixture:setUserData("BORDERLEFT")
 	-- right border
 	PHYSICSBORDER4 = {}
-    PHYSICSBORDER4.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH - 10, SCREEN_HEIGHT / 2, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER4.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH - 10) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT / 2) / BOX2D_SCALE
+    PHYSICSBORDER4.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER4.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT / BOX2D_SCALE) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER4.fixture = love.physics.newFixture(PHYSICSBORDER4.body, PHYSICSBORDER4.shape) --attach shape to body
 	PHYSICSBORDER4.fixture:setUserData("BORDERRIGHT")
-
-
 
 	-- inject initial agents into the dish
 	for i = 1, INITAL_NUMBER_OF_ENTITIES do
@@ -195,24 +201,26 @@ function love.draw()
 
 
 	-- debugging
-	-- love.graphics.setColor(1, 0, 0, 1)
-	-- for _, body in pairs(PHYSICSWORLD:getBodies()) do
-	-- 	for _, fixture in pairs(body:getFixtures()) do
-	-- 		local shape = fixture:getShape()
-	--
-	-- 		if shape:typeOf("CircleShape") then
-	-- 			local drawx, drawy = body:getWorldPoints(shape:getPoint())
-	-- 			local radius = shape:getRadius()
-	-- 			love.graphics.circle("line", drawx, drawy, radius)
-	-- 			love.graphics.setColor(1, 1, 1, 1)
-	-- 			love.graphics.print("r:" .. cf.round(radius,2), drawx + 7, drawy - 3)
-	-- 		elseif shape:typeOf("PolygonShape") then
-    --         	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))
-	-- 		else
-	-- 			love.graphics.line(body:getWorldPoints(shape:getPoints()))
-	-- 		end
-	-- 	end
-	-- end
+	love.graphics.setColor(1, 0, 0, 1)
+	for _, body in pairs(PHYSICSWORLD:getBodies()) do
+		for _, fixture in pairs(body:getFixtures()) do
+			local shape = fixture:getShape()
+
+			if shape:typeOf("CircleShape") then
+				local drawx, drawy = body:getWorldPoints(shape:getPoint())
+				drawx = drawx * BOX2D_SCALE
+				drawy = drawy * BOX2D_SCALE
+				local radius = shape:getRadius()
+				love.graphics.circle("line", drawx, drawy, radius)
+				love.graphics.setColor(1, 1, 1, 1)
+				love.graphics.print("r:" .. cf.round(radius,2), drawx + 7, drawy - 3)
+			elseif shape:typeOf("PolygonShape") then
+            	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))		--! need to scale from BOX2d up to scren coordinates
+			else
+				love.graphics.line(body:getWorldPoints(shape:getPoints()))
+			end
+		end
+	end
 
 	cam:detach()
 	draw.HUD()

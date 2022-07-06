@@ -70,8 +70,8 @@ function ecsUpdate.init()
             local vectordistance = 5000 * dt
             local x1,y1 = fun.getBodyXY(entity.uid.value)
             local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
-            local xvector = (x2 - x1) * 100000 * dt     --! can adjust the force and the energy used
-            local yvector = (y2 - y1) * 100000 * dt
+            local xvector = (x2 - x1) * 1000 * dt     --! can adjust the force and the energy used
+            local yvector = (y2 - y1) * 1000 * dt
             local physEntity = fun.getBody(entity.uid.value)
             physEntity.body:applyForce(xvector, yvector)
         end
@@ -107,6 +107,8 @@ function ecsUpdate.init()
 
                 -- create a projectile entity
                 local newEntity = fun.addProjectile(entity)
+                assert(newEntity ~= nil)
+
                 -- apply an impulse immediately
 
                 local x,y = fun.getBodyXY(entity.uid.value)
@@ -116,13 +118,15 @@ function ecsUpdate.init()
                 local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
 
                 local impulsevectorx, impulsevectory
-                impulsevectorx = newx - x
-                impulsevectory = newy - y
-                local scale = 100000000
-                newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
-                --newEntity.body:setLinearVelocity(impulsevectorx * scale, impulsevectory * scale)
+                local scale = 20
+                impulsevectorx = (newx - x) * scale
+                impulsevectory = (newy - y) * scale
 
-                print(newEntity.body:getLinearVelocity())
+                -- newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
+                newEntity.body:setLinearVelocity(10000000, 10000000)
+                -- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
+
+    print(newEntity.body:getLinearVelocity())
 
 
             end
