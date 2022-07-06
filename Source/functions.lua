@@ -4,8 +4,9 @@ function functions.addEntity()
     -- adds one ENTITIES to the AGENTS arrary
 
     local entity = concord.entity(ECSWORLD)
+    :give("vessel")
     :give("drawable")
-    :give("position")
+    :give("position", 2)
     :give("uid")
     :give("facing", love.math.random(0,359))
     :give("engine")
@@ -16,6 +17,8 @@ function functions.addEntity()
 
     local rndx = love.math.random(50, WORLD_WIDTH - 50)
     local rndy = love.math.random(50, SCREEN_HEIGHT - 50)
+    local rndx = rndx / BOX2D_SCALE
+    local rndy = rndy / BOX2D_SCALE
     local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, rndx, rndy,"dynamic")
 	physicsEntity.body:setLinearDamping(0)
@@ -32,8 +35,9 @@ end
 function functions.addProjectile(parentEntity)
     -- parent entity is the shooter creating this entity
     local entity = concord.entity(ECSWORLD)
+    :give("projectile")
     :give("drawable")
-    :give("position", 1)
+    :give("position", 0.25)
     :give("uid")
     :give("projectile")
 
@@ -48,14 +52,13 @@ function functions.addProjectile(parentEntity)
     local x,y = fun.getBodyXY(parentEntity.uid.value)
     -- add radius + 1 in the direction of facing
     local facing = parentEntity.facing.value
-    local distance = parentEntity.position.radius * 1
+    local distance = parentEntity.position.radius + 2
     local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
-
 
     local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, newx, newy, "dynamic")
     physicsEntity.body:setLinearDamping(0)
-    physicsEntity.body:setMass(RADIUSMASSRATIO * 1)
+    physicsEntity.body:setMass(1)
     physicsEntity.shape = love.physics.newCircleShape(1)
     physicsEntity.fixture = love.physics.newFixture(physicsEntity.body, physicsEntity.shape, 1)		-- the 1 is the density
     physicsEntity.fixture:setRestitution(0)

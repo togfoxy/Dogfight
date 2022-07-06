@@ -63,8 +63,9 @@ function love.wheelmoved(x, y)
 	if y < 0 then
 		ZOOMFACTOR = ZOOMFACTOR - 0.1
 	end
-	if ZOOMFACTOR < 0.8 then ZOOMFACTOR = 0.8 end
+	if ZOOMFACTOR < 0.5 then ZOOMFACTOR = 0.5 end
 	if ZOOMFACTOR > 4 then ZOOMFACTOR = 4 end
+	print("Zoom factor = " .. ZOOMFACTOR)
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
@@ -98,26 +99,41 @@ function beginContact(a, b, coll)
 		-- collision is with border. Do nothing.
 		if entity1isborder then
 			entity2 = fun.getEntity(uid2)
-			if not entity2:has("engine") then
-				-- entity2 has hit a border with no engines. It must be a projectile or similar
-				-- destroy
-				fun.killEntity(entity2)
+			if entity2 == nil then
+				-- entity already destroyed. Do nothing
+			else
+				if not entity2:has("vessel") then
+					-- entity2 has hit a border with no engines. It must be a projectile or similar
+					-- destroy
+					fun.killEntity(entity2)
+				end
 			end
 		end
 		if entity2isborder then
 			entity1 = fun.getEntity(uid1)
-			if not entity1:has("engine") then
-				-- entity1 has hit a border with no engines. It must be a projectile or similar
-				-- destroy
-				fun.killEntity(entity1)
+			if entity1 ~= nil then
+				if not entity1:has("vessel") then
+					-- entity1 has hit a border with no engines. It must be a projectile or similar
+					-- destroy
+					fun.killEntity(entity1)
+				end
 			end
 		end
 	else
 		-- legit collision
-		entity1 = fun.getEntity(uid1)
-		entity2 = fun.getEntity(uid2)
-		assert(entity1 ~= nil)
-		assert(entity2 ~= nil)
+		local physEntity1 = a:getBody()	-- a and b are fixtures. Return the parent body
+		local physEntity2 = b:getBody()
+		local acelx1, acely1 = physEntity1:getLinearVelocity()
+		local acelx2, acely2 = physEntity2:getLinearVelocity()
+
+		local acel1 = cf.GetDistance(physEntity1:getX(), physEntity1:getY(), acelx1, acely1)
+		local acel2 = cf.GetDistance(physEntity2:getX(), physEntity2:getY(), acelx2, acely2)
+
+		local force1 = physEntity1:getMass() * acel1
+		local force2 = physEntity2:getMass() * acel2
+
+		print("Impact:", force1, force2)
+
 	end
 end
 
@@ -154,30 +170,36 @@ function love.load()
 
 	-- bottom border
 	PHYSICSBORDER1 = {}
-    PHYSICSBORDER1.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH / 2, SCREEN_HEIGHT - 10, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER1.shape = love.physics.newRectangleShape(WORLD_WIDTH, 5) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH / 2) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT - 10) / BOX2D_SCALE
+    PHYSICSBORDER1.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER1.shape = love.physics.newRectangleShape(WORLD_WIDTH / BOX2D_SCALE, 5) --make a rectangle with a width of this
     PHYSICSBORDER1.fixture = love.physics.newFixture(PHYSICSBORDER1.body, PHYSICSBORDER1.shape) --attach shape to body
 	PHYSICSBORDER1.fixture:setUserData("BORDERBOTTOM")
 	-- top border
 	PHYSICSBORDER2 = {}
-    PHYSICSBORDER2.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH / 2, 10, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER2.shape = love.physics.newRectangleShape(WORLD_WIDTH, 5) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH / 2) / BOX2D_SCALE
+	local y = (10) / BOX2D_SCALE
+    PHYSICSBORDER2.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER2.shape = love.physics.newRectangleShape(WORLD_WIDTH / BOX2D_SCALE, 5) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER2.fixture = love.physics.newFixture(PHYSICSBORDER2.body, PHYSICSBORDER2.shape) --attach shape to body
 	PHYSICSBORDER2.fixture:setUserData("BORDERTOP")
 	-- left border
 	PHYSICSBORDER3 = {}
-    PHYSICSBORDER3.body = love.physics.newBody(PHYSICSWORLD, 10, SCREEN_HEIGHT / 2, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER3.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT) --make a rectangle with a width of 650 and a height of 50
+	local x = (10) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT / 2) / BOX2D_SCALE
+    PHYSICSBORDER3.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER3.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT / BOX2D_SCALE) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER3.fixture = love.physics.newFixture(PHYSICSBORDER3.body, PHYSICSBORDER3.shape) --attach shape to body
 	PHYSICSBORDER3.fixture:setUserData("BORDERLEFT")
 	-- right border
 	PHYSICSBORDER4 = {}
-    PHYSICSBORDER4.body = love.physics.newBody(PHYSICSWORLD, WORLD_WIDTH - 10, SCREEN_HEIGHT / 2, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
-    PHYSICSBORDER4.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT) --make a rectangle with a width of 650 and a height of 50
+	local x = (WORLD_WIDTH - 10) / BOX2D_SCALE
+	local y = (SCREEN_HEIGHT / 2) / BOX2D_SCALE
+    PHYSICSBORDER4.body = love.physics.newBody(PHYSICSWORLD, x, y, "static") --remember, the shape (the rectangle we create next) anchors to the body from its center, so we have to move it to (650/2, 650-50/2)
+    PHYSICSBORDER4.shape = love.physics.newRectangleShape(5, SCREEN_HEIGHT / BOX2D_SCALE) --make a rectangle with a width of 650 and a height of 50
     PHYSICSBORDER4.fixture = love.physics.newFixture(PHYSICSBORDER4.body, PHYSICSBORDER4.shape) --attach shape to body
 	PHYSICSBORDER4.fixture:setUserData("BORDERRIGHT")
-
-
 
 	-- inject initial agents into the dish
 	for i = 1, INITAL_NUMBER_OF_ENTITIES do
@@ -202,12 +224,14 @@ function love.draw()
 	--
 	-- 		if shape:typeOf("CircleShape") then
 	-- 			local drawx, drawy = body:getWorldPoints(shape:getPoint())
-	-- 			local radius = shape:getRadius()
+	-- 			drawx = drawx * BOX2D_SCALE
+	-- 			drawy = drawy * BOX2D_SCALE
+	-- 			local radius = shape:getRadius() * BOX2D_SCALE
 	-- 			love.graphics.circle("line", drawx, drawy, radius)
 	-- 			love.graphics.setColor(1, 1, 1, 1)
 	-- 			love.graphics.print("r:" .. cf.round(radius,2), drawx + 7, drawy - 3)
 	-- 		elseif shape:typeOf("PolygonShape") then
-    --         	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))
+    --         	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))		--! need to scale from BOX2d up to scren coordinates
 	-- 		else
 	-- 			love.graphics.line(body:getWorldPoints(shape:getPoints()))
 	-- 		end

@@ -3,7 +3,9 @@ constants = {}
 function constants.load()
     -- constants and globals
 
-    INITAL_NUMBER_OF_ENTITIES = 1
+
+    INITAL_NUMBER_OF_ENTITIES = 2
+    BOX2D_SCALE = 5
     ECS_ENTITIES = {}
     ECS_ENTITIES_PROJECTILES = {}
     PHYSICS_ENTITIES = {}
@@ -12,8 +14,8 @@ function constants.load()
 
     SIDEBAR_WIDTH = 250
     WORLD_WIDTH = SCREEN_WIDTH - SIDEBAR_WIDTH
-    ZOOMFACTOR = 0.9
 
+    ZOOMFACTOR = 0.9
     TRANSLATEX = 0
     TRANSLATEY = 0
 

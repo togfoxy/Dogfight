@@ -8,10 +8,14 @@ function cmp.init()
 
     concord.component("drawable")   -- will be drawn during love.draw()
     concord.component("isSelected") -- clicked by the mouse
+    concord.component("vessel")
+    concord.component("projectile")
+    concord.component("missile")
+    
 
     concord.component("position", function(c, rad)
         if rad == nil then
-            c.radius = 10            -- the size of the entity
+            c.radius = 2            -- the size of the entity
         else
             c.radius = rad
         end
@@ -35,15 +39,18 @@ function cmp.init()
        c.navy = love.math.random(1,2)
    end)
 
-   concord.component("engine", function(c)
+   concord.component("engine", function(c, force)
        c.mass = 100
        c.hitpoints = 100
-       c.force = 100
        c.fConsumpption = 100
        c.turnrate = 60      -- degrees
+        if force == nil then
+            c.force = 100
+        else
+            c.force = force
+        end
    end)
 
-   concord.component("projectile")
    concord.component("gun_projectile", function(c)
        c.mass = 100
        c.hitpoints = 100
