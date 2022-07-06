@@ -121,19 +121,61 @@ function beginContact(a, b, coll)
 		end
 	else
 		-- legit collision
-		local physEntity1 = a:getBody()	-- a and b are fixtures. Return the parent body
-		local physEntity2 = b:getBody()
-		local acelx1, acely1 = physEntity1:getLinearVelocity()
-		local acelx2, acely2 = physEntity2:getLinearVelocity()
+		-- local physEntity1 = a:getBody()	-- a and b are fixtures. Return the parent body
+		-- local physEntity2 = b:getBody()
+		-- local acelx1, acely1 = physEntity1:getLinearVelocity()
+		-- local acelx2, acely2 = physEntity2:getLinearVelocity()
+		--
+		-- local acel1 = cf.GetDistance(physEntity1:getX(), physEntity1:getY(), acelx1, acely1)
+		-- local acel2 = cf.GetDistance(physEntity2:getX(), physEntity2:getY(), acelx2, acely2)
+		--
+		-- local force1 = physEntity1:getMass() * acel1
+		-- local force2 = physEntity2:getMass() * acel2
+		--
+		-- print("Impact:", force1, force2)
 
-		local acel1 = cf.GetDistance(physEntity1:getX(), physEntity1:getY(), acelx1, acely1)
-		local acel2 = cf.GetDistance(physEntity2:getX(), physEntity2:getY(), acelx2, acely2)
+		entity1 = fun.getEntity(uid1)
+		entity2 = fun.getEntity(uid2)
+		assert(entity1 ~= nil)
+		assert(entity2 ~= nil)
 
-		local force1 = physEntity1:getMass() * acel1
-		local force2 = physEntity2:getMass() * acel2
 
-		print("Impact:", force1, force2)
+		local combatoutcomes = {}
+		-- 1 = vessel; 2 = projectile
 
+		combatoutcomes[1] = {0, 1}		-- row 1 = vessel
+		combatoutcomes[2] = {x, 0}		-- row 2 = projectile
+
+		-- 0 means no damage; 1 means the entity1 takes damage; 2 means entity2 takes damage
+		local row, col
+		if entity1:has("vessel") then
+			row = 1
+		elseif entity1:has("projectile") then
+			row = 2
+		else
+			error()
+		end
+		if entity2:has("vessel") then
+			col = 1
+		elseif entity2:has("projectile") then
+			col = 2
+		else
+			print(entity1isborder, entity2isborder)
+			error()
+		end
+		local combatresult = combatoutcomes[row][col]
+
+
+
+		if combatresult == 0 then
+			-- do nothing
+		elseif combatresult == 1 then
+			-- entity1 takes damage
+			fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
+		elseif combatresult == 2 then
+			-- entity2 takes damage
+			fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
+		end
 	end
 end
 
