@@ -20,7 +20,7 @@ function ecsDraw.init()
             drawx = drawx * BOX2D_SCALE
             drawy = drawy * BOX2D_SCALE
 
-            local radius = (entity.position.radius)
+            local radius = (entity.position.radius) * BOX2D_SCALE
 
             local red, green, blue
             if entity:has("chassis") then

@@ -70,8 +70,8 @@ function ecsUpdate.init()
             local vectordistance = 5000 * dt
             local x1,y1 = fun.getBodyXY(entity.uid.value)
             local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
-            local xvector = (x2 - x1) * 1000 * dt     --! can adjust the force and the energy used
-            local yvector = (y2 - y1) * 1000 * dt
+            local xvector = (x2 - x1) * entity.engine.force * dt     --! can adjust the force and the energy used
+            local yvector = (y2 - y1) * entity.engine.force * dt
             local physEntity = fun.getBody(entity.uid.value)
             physEntity.body:applyForce(xvector, yvector)
         end
@@ -118,12 +118,12 @@ function ecsUpdate.init()
                 local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
 
                 local impulsevectorx, impulsevectory
-                local scale = 20
+                local scale = entity.gun_projectile.force
                 impulsevectorx = (newx - x) * scale
                 impulsevectory = (newy - y) * scale
 
-                -- newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
-                newEntity.body:setLinearVelocity(10000000, 10000000)
+                newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
+                -- newEntity.body:setLinearVelocity(10000000, 10000000)
                 -- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
 
     print(newEntity.body:getLinearVelocity())

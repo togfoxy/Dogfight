@@ -98,10 +98,14 @@ function beginContact(a, b, coll)
 		-- collision is with border. Do nothing.
 		if entity1isborder then
 			entity2 = fun.getEntity(uid2)
-			if not entity2:has("engine") then
-				-- entity2 has hit a border with no engines. It must be a projectile or similar
-				-- destroy
-				fun.killEntity(entity2)
+			if entity2 == nil then
+				-- entity already destroyed. Do nothing
+			else
+				if not entity2:has("engine") then
+					-- entity2 has hit a border with no engines. It must be a projectile or similar
+					-- destroy
+					fun.killEntity(entity2)
+				end
 			end
 		end
 		if entity2isborder then
@@ -201,26 +205,26 @@ function love.draw()
 
 
 	-- debugging
-	love.graphics.setColor(1, 0, 0, 1)
-	for _, body in pairs(PHYSICSWORLD:getBodies()) do
-		for _, fixture in pairs(body:getFixtures()) do
-			local shape = fixture:getShape()
-
-			if shape:typeOf("CircleShape") then
-				local drawx, drawy = body:getWorldPoints(shape:getPoint())
-				drawx = drawx * BOX2D_SCALE
-				drawy = drawy * BOX2D_SCALE
-				local radius = shape:getRadius()
-				love.graphics.circle("line", drawx, drawy, radius)
-				love.graphics.setColor(1, 1, 1, 1)
-				love.graphics.print("r:" .. cf.round(radius,2), drawx + 7, drawy - 3)
-			elseif shape:typeOf("PolygonShape") then
-            	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))		--! need to scale from BOX2d up to scren coordinates
-			else
-				love.graphics.line(body:getWorldPoints(shape:getPoints()))
-			end
-		end
-	end
+	-- love.graphics.setColor(1, 0, 0, 1)
+	-- for _, body in pairs(PHYSICSWORLD:getBodies()) do
+	-- 	for _, fixture in pairs(body:getFixtures()) do
+	-- 		local shape = fixture:getShape()
+	--
+	-- 		if shape:typeOf("CircleShape") then
+	-- 			local drawx, drawy = body:getWorldPoints(shape:getPoint())
+	-- 			drawx = drawx * BOX2D_SCALE
+	-- 			drawy = drawy * BOX2D_SCALE
+	-- 			local radius = shape:getRadius() * BOX2D_SCALE
+	-- 			love.graphics.circle("line", drawx, drawy, radius)
+	-- 			love.graphics.setColor(1, 1, 1, 1)
+	-- 			love.graphics.print("r:" .. cf.round(radius,2), drawx + 7, drawy - 3)
+	-- 		elseif shape:typeOf("PolygonShape") then
+    --         	love.graphics.polygon("fill", body:getWorldPoints(shape:getPoints()))		--! need to scale from BOX2d up to scren coordinates
+	-- 		else
+	-- 			love.graphics.line(body:getWorldPoints(shape:getPoints()))
+	-- 		end
+	-- 	end
+	-- end
 
 	cam:detach()
 	draw.HUD()

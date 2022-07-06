@@ -5,12 +5,12 @@ function functions.addEntity()
 
     local entity = concord.entity(ECSWORLD)
     :give("drawable")
-    :give("position")
+    :give("position", 2)
     :give("uid")
     :give("facing", love.math.random(0,359))
     :give("engine")
     :give("chassis")
-    -- :give("gun_projectile")
+    :give("gun_projectile")
 
     table.insert(ECS_ENTITIES, entity)
 
