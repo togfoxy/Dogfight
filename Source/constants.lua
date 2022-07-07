@@ -11,6 +11,9 @@ function constants.load()
     PHYSICS_ENTITIES = {}
 
     RADIUSMASSRATIO = 5
+	VESSELS_SELECTED = 0
+	FUEL_MASS = 1				-- how much mass does one unit of fuel weigh
+	SELECTED_VESSEL = {}
 
     SIDEBAR_WIDTH = 250
     WORLD_WIDTH = SCREEN_WIDTH - SIDEBAR_WIDTH

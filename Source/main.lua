@@ -75,6 +75,39 @@ function love.mousemoved( x, y, dx, dy, istouch )
 	end
 end
 
+function love.mousepressed( x, y, button, istouch, presses )
+
+	if button == 1 then
+		-- convert mouse point to the physics coordinates
+		local x1 = x / BOX2D_SCALE
+		local y1 = y / BOX2D_SCALE
+
+		for k, entity in pairs(ECS_ENTITIES) do
+			if entity:has("vessel") then
+				local physEntity = fun.getBody(entity.uid.value)
+
+				x2 = physEntity.body:getX()
+				y2 = physEntity.body:getY()
+
+				local dist = cf.GetDistance(x1, y1, x2, y2)
+				if dist <= entity.position.radius then
+					if entity.isSelected then
+						entity:remove("isSelected")		--! small bug - need to check if this is the last selected and then remove it
+						VESSELS_SELECTED = VESSELS_SELECTED - 1
+						SELECTED_VESSEL = nil
+					else
+						entity:ensure("isSelected")
+						VESSELS_SELECTED = VESSELS_SELECTED + 1
+						SELECTED_VESSEL = entity
+					end
+				else
+					entity:remove("isSelected")
+				end
+			end
+		end
+	end
+end
+
 function beginContact(a, b, coll)
 	-- a is the first fixture
 	-- b is the second fixture
@@ -165,17 +198,21 @@ function beginContact(a, b, coll)
 		end
 		local combatresult = combatoutcomes[row][col]
 
-
-
 		if combatresult == 0 then
 			-- do nothing
 		elseif combatresult == 1 then
 			-- entity1 takes damage
 			fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
+			--! destroy the ordinance
 		elseif combatresult == 2 then
 			-- entity2 takes damage
 			fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
+			--! destroy the ordinance
+		else
+			error()
 		end
+
+
 	end
 end
 
@@ -291,9 +328,10 @@ function love.update(dt)
 
 	ECSWORLD:emit("update", dt)
 	ECSWORLD:emit("facing", dt)
-	-- ECSWORLD:emit("targeting", dt)
+	-- ECSWORLD:emit("targeting", dt)	--!
 	ECSWORLD:emit("shooting", dt)
 	ECSWORLD:emit("engines", dt)
+	ECSWORLD:emit("coreData", dt)
 
 	PHYSICSWORLD:update(dt) --this puts the world into motion
 

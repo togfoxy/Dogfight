@@ -48,7 +48,15 @@ function ecsDraw.init()
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.line(drawx, drawy, x2, y2)
             end
-            -- debug
+
+            -- selection
+            if entity:has("isSelected") then
+                local drawx = drawx - 15
+                local drawy = drawy - 15
+                love.graphics.rectangle("line", drawx, drawy, 30, 30)
+            end
+
+
 
         end
     end
