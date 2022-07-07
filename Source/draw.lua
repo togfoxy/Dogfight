@@ -13,17 +13,17 @@ function draw.HUD()
 
 	-- draw sidebar contents
 	if VESSELS_SELECTED == 1 then
-		local drawx = SCREEN_WIDTH - SIDEBAR_WIDTH + 10
+		local drawx = WORLD_WIDTH + 10
 		local drawy = 10
 
 		love.graphics.setColor(1,1,1,1)
-		love.graphics.print("Chasis hitpoint: " .. SELECTED_VESSEL.chassis.hitpoints)
+		love.graphics.print("Chasis hitpoint: " .. SELECTED_VESSEL.chassis.hitpoints, drawx, drawy)
 		drawy = drawy + 15
 
-		love.graphics.print("Fuel remaining: " .. SELECTED_VESSEL.fueltank.value)
+		love.graphics.print("Fuel remaining: " .. cf.round(SELECTED_VESSEL.fueltank.value), drawx, drawy)
 		drawy = drawy + 15
 
-		love.graphics.print("Fuel remaining: " .. SELECTED_VESSEL.coreData.currentMass)
+		love.graphics.print("Current mass: " .. SELECTED_VESSEL.coreData.currentMass, drawx, drawy)
 		drawy = drawy + 15
 
 

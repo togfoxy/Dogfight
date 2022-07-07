@@ -72,10 +72,10 @@ function cmp.init()
    end)
 
    concord.component("fueltank", function(c)
-	   c.value = 100
+	   c.value = 5000
 	   c.mass = 100
 	   c.hitpoints = 100
-	   c.capacity = 100
+	   c.capacity = 1000
 	   c.currentmass = c.mass + (c.capacity * FUEL_MASS)
    end)
 

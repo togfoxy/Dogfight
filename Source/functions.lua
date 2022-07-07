@@ -218,19 +218,28 @@ function functions.damageEntity(victim, ordinance)
         totalmass = totalmass + victim.fueltank.currentmass
     end
 
--- print(inspect(potentialtargets))
-
 	local rndnum = love.math.random(1, totalmass)
 	for k, comp in pairs(potentialtargets) do
--- print(rndnum)
--- print(comp.mass)
 		if rndnum <= comp.mass then
 			-- found a target component
 			--! apply damage
 			compname = comp.name
-			-- victim.[compname].hitpoints = victim.[compname].hitpoints - damageinflicted
-			-- if victim.[compname].hitpoints <= 0 then victim.[compname].hitpoints = 0 end
-    print("Damage applied to " .. compname)
+
+			--victim[compname]["hitpoints"] = victim.[compname]["hitpoints"] - damageinflicted
+			-- if victim[compname].hitpoints <= 0 then victim.[compname].hitpoints = 0 end
+
+            if compname == "chassis" then
+                victim.chassis.hitpoints = victim.chassis.hitpoints - damageinflicted
+            end
+            if compname == "engine" then
+                victim.engine.hitpoints = victim.engine.hitpoints - damageinflicted
+            end
+            if compname == "gun_projectile" then
+                victim.engine.hitpoints = victim.gun_projectile.hitpoints - damageinflicted
+            end
+            if compname == "fueltank" then
+                victim.engine.hitpoints = victim.fueltank.hitpoints - damageinflicted
+            end
 			break
 		else
 			rndnum = rndnum - comp.mass
@@ -241,8 +250,19 @@ end
 
 function functions.updateCurrentMass()
 	-- cycle through the entities and recalculate mass
-
+    --!
 end
 
+function functions.checkForKills()
+    for k, entity in pairs(ECS_ENTITIES) do
+        if entity:has("vessel") then
+            if entity.chassis.hitpoints <= 0 then
+                -- boom
+                fun.killEntity(entity)
+                print("Entity explodes")
+            end
+        end
+    end
+end
 
 return functions

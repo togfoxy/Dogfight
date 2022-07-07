@@ -13,6 +13,8 @@ function constants.load()
     RADIUSMASSRATIO = 5
 	VESSELS_SELECTED = 0
 	FUEL_MASS = 1				-- how much mass does one unit of fuel weigh
+    FUEL_LEAK = 100             -- fuel loss per second
+
 	SELECTED_VESSEL = {}
 
     SIDEBAR_WIDTH = 250

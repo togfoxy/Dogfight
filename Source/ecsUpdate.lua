@@ -80,6 +80,13 @@ function ecsUpdate.init()
 						entity.fueltank.value = entity.fueltank.value - fuelused
 						entity.coreData.currentMass = entity.coreData.currentMass - (fuelused * FUEL_MASS)
 						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
+
+                        if entity.fueltank.hitpoints <= 0 then
+                            -- leak fuel
+                            entity.fueltank.value = entity.fueltank.value - FUEL_LEAK * dt
+                            entity.coreData.currentMass = entity.coreData.currentMass - ((FUEL_LEAK * dt) * FUEL_MASS)
+                            if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
+                        end
 					end
 				else
 					error("Engine with no fuel tank = impossible!")
