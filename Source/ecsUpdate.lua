@@ -71,7 +71,7 @@ function ecsUpdate.init()
 						local vectordistance = 5000 * dt
 						local x1,y1 = fun.getBodyXY(entity.uid.value)
 						local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
-						local xvector = (x2 - x1) * entity.engine.force * dt     --! can adjust the force and the energy used
+						local xvector = (x2 - x1) * entity.engine.force * dt
 						local yvector = (y2 - y1) * entity.engine.force * dt
 						local physEntity = fun.getBody(entity.uid.value)
 						physEntity.body:applyForce(xvector, yvector)
@@ -123,7 +123,7 @@ function ecsUpdate.init()
             if entity.gun_projectile.timer <= 0 then
 				if entity.gun_projectile.ammoRemaining > 0 then
 					if entity.gun_projectile.hitpoints > 0 then
-						entity.gun_projectile.timer = 4
+						entity.gun_projectile.timer = 1
 
 						-- create a projectile entity
 						local newEntity = fun.addProjectile(entity)

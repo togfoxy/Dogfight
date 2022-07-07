@@ -1,6 +1,6 @@
 functions = {}
 
-function functions.addEntity()
+function functions.addEntity(navy)
     -- adds one ENTITIES to the AGENTS arrary
 
     local entity = concord.entity(ECSWORLD)
@@ -12,7 +12,7 @@ function functions.addEntity()
     :give("facing", love.math.random(0,359))
     :give("engine")
 	:give("fueltank")
-    :give("chassis")
+    :give("chassis", navy)
     :give("gun_projectile")
 
 	entity.coreData.currentMass = entity.engine.currentmass + entity.fueltank.currentmass + entity.chassis.currentmass + entity.gun_projectile.currentmass

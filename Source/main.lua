@@ -266,9 +266,13 @@ function love.load()
 	PHYSICSBORDER4.fixture:setUserData("BORDERRIGHT")
 
 	-- inject initial agents into the dish
-	for i = 1, INITAL_NUMBER_OF_ENTITIES do
-		fun.addEntity()
-	end
+	-- for i = 1, INITAL_NUMBER_OF_ENTITIES do
+	-- 	fun.addEntity()
+	-- end
+	fun.addEntity(1)
+	fun.addEntity(2)
+
+
 end
 
 
