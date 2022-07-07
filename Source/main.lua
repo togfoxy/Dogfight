@@ -76,12 +76,12 @@ function love.mousemoved( x, y, dx, dy, istouch )
 end
 
 function love.mousepressed( x, y, button, istouch, presses )
-	
+
 	if button == 1 then
 		-- convert mouse point to the physics coordinates
 		local x1 = x / BOX2D_SCALE
 		local y1 = y / BOX2D_SCALE
-		
+
 		for k, entity in pairs(ECS_ENTITIES) do
 			if entity:has("vessel") then
 				local physEntity = cf.getBody(entity.uid.value)
@@ -196,17 +196,23 @@ function beginContact(a, b, coll)
 		end
 		local combatresult = combatoutcomes[row][col]
 
-
+print("Combat outcome: " .. row, col, combatresult)
 
 		if combatresult == 0 then
 			-- do nothing
 		elseif combatresult == 1 then
 			-- entity1 takes damage
 			fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
+			--! destroy the ordinance
 		elseif combatresult == 2 then
 			-- entity2 takes damage
 			fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
+			--! destroy the ordinance
+		else
+			error()
 		end
+
+
 	end
 end
 
@@ -326,7 +332,7 @@ function love.update(dt)
 	ECSWORLD:emit("shooting", dt)
 	ECSWORLD:emit("engines", dt)
 	ECSWORLD:emit("coreData", dt)
-	
+
 	PHYSICSWORLD:update(dt) --this puts the world into motion
 
 	cam:setPos(TRANSLATEX,	TRANSLATEY)

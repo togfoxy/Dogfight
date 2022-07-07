@@ -8,7 +8,7 @@ function cmp.init()
 
     concord.component("drawable")   -- will be drawn during love.draw()
     concord.component("isSelected") -- clicked by the mouse
-	
+
 	-- types of entity
     concord.component("vessel")
     concord.component("projectile", function(c)
@@ -17,7 +17,7 @@ function cmp.init()
     end)
     concord.component("missile", function(d)
         c.mindamage = 50
-        c.maxdamage = 200	
+        c.maxdamage = 200
 	end)
 
     concord.component("position", function(c, rad)
@@ -70,17 +70,17 @@ function cmp.init()
        c.timer = 0              -- frequency of shot
 	   c.currentmass = c.mass + (c.ammoRemaining * c.ammoMass)
    end)
-   
-   concord.component("fueltank"), function(c)
+
+   concord.component("fueltank", function(c)
 	   c.value = 100
 	   c.mass = 100
 	   c.hitpoints = 100
 	   c.capacity = 100
 	   c.currentmass = c.mass + (c.capacity * FUEL_MASS)
    end)
-	
-   concord.component("coreData"), function(c)
-	   c.currentMass = 0	   
+
+   concord.component("coreData", function(c)
+	   c.currentMass = 0
    end)
 end
 

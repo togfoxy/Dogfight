@@ -75,7 +75,7 @@ function ecsUpdate.init()
 						local yvector = (y2 - y1) * entity.engine.force * dt
 						local physEntity = fun.getBody(entity.uid.value)
 						physEntity.body:applyForce(xvector, yvector)
-						
+
 						local fuelused = entity.engine.force * dt
 						entity.fueltank.value = entity.fueltank.value - fuelused
 						entity.coreData.currentMass = entity.coreData.currentMass - (fuelused * FUEL_MASS)
@@ -138,11 +138,11 @@ function ecsUpdate.init()
 						newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
 						-- newEntity.body:setLinearVelocity(10000000, 10000000)
 						-- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
-						
+
 						-- reduce mass through use of ammo
 						local ammoused = 1
 						entity.gun_projectile.ammoRemaining = entity.gun_projectile.ammoRemaining - ammoused
-						entity.coreData.currentMass = entity.coreData.currentMass - (ammoused * ammoMass)
+						entity.coreData.currentMass = entity.coreData.currentMass - (ammoused * entity.gun_projectile.ammoMass)
 						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
 					end
 				end
@@ -150,39 +150,20 @@ function ecsUpdate.init()
         end
     end
     ECSWORLD:addSystems(systemShooting)
-	
+
 	systemcoreData = concord.system({
 		pool  = {"coreData"}
 	})
 	function systemcoreData:coreData(dt)
 		for _, entity in ipairs(self.pool) do
-		
+
 			-- update physics mass with core data mass
 			local physEntity = fun.getBody(entity.uid.value)
 			-- physEntity.body:setMass(entity.coreData.currentMass)
-		
-		
+
+
 		end
 	end
 	ECSWORLD:addSystems(systemcoreData)
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+end
+return ecsUpdate

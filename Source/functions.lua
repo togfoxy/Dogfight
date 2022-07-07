@@ -14,7 +14,7 @@ function functions.addEntity()
 	:give("fueltank")
     :give("chassis")
     :give("gun_projectile")
-	
+
 	entity.coreData.currentMass = entity.engine.currentmass + entity.fueltank.currentmass + entity.chassis.currentmass + entity.gun_projectile.currentmass
 
     table.insert(ECS_ENTITIES, entity)
@@ -86,16 +86,16 @@ function functions.addMissile(parentEntity)
 	:give("fueltank")
     :give("missile")
 	:give("facing", parentEntity.facing.value)
-	
+
 	table.insert(ECS_ENTITIES, entity)
-	
+
 	-- parent x/y
     local x,y = fun.getBodyXY(parentEntity.uid.value)
     -- add radius + 1 in the direction of facing
     local facing = parentEntity.facing.value
     local distance = parentEntity.position.radius + 3
     local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
-	
+
 	local physicsEntity = {}
     physicsEntity.body = love.physics.newBody(PHYSICSWORLD, newx, newy, "dynamic")
     physicsEntity.body:setLinearDamping(0)
@@ -184,62 +184,52 @@ function functions.damageEntity(victim, ordinance)
     -- choose a random component
     local allcomponents = victim:getComponents()
     --print(inspect(allcomponents))
-    --print("``````````````````")
-    for k, v in pairs(victim:getComponents()) do
-        -- print("Name: " .. v.__name)
-        -- if v.hitpoints ~= nil then
-            -- print("Hitpoints: " .. v.hitpoints)
-        -- end
-        -- -- print(inspect(v))
-        -- print("------------")
+    print("``````````````````")
+    for k, v in ipairs(victim:getComponents()) do
+        print("Name: " .. v.__name)
+        if v.hitpoints ~= nil then
+            print("Hitpoints: " .. v.hitpoints)
+        end
+        -- print(inspect(v))
+        print("------------")
 
-		local comp = {}		
-		local totalmass = 0
-		if v.hitpoints ~= nil then
-			comp.name = v.__name
-			comp.mass = v.mass
-			comp.hitpoints = v.hitpoints
-			table.insert(potentialtargets, comp)
-			totalmass = totalmass + v.mass
-		end
-		
-		local rndnum = love.math.random(1, totalmass)
-		for k, v in pairs(potentialtargets) do
-			if rndnum <= v.mass then
-				-- found a target component
-				--! apply damage
-				compname = comp.name
-				victim.compname.hitpoints = victim.compname.hitpoints - damageinflicted
-				if victim.compname.hitpoints <= 0 then victim.compname.hitpoints = 0 end
-				break
-			else
-				rndnum = rndnum - v.mass
-			end
-		end
+		-- local comp = {}
+		-- local totalmass = 0
+		-- if v.hitpoints ~= nil then
+		-- 	comp.name = v.__name
+		-- 	comp.mass = v.mass
+		-- 	comp.hitpoints = v.hitpoints
+		-- 	table.insert(potentialtargets, comp)
+		-- 	totalmass = totalmass + v.mass
+		-- end
     end
+
+
+print(inspect(potentialtargets))
+print("******************")
+print(inspect(victim))
+error()
+
+	local rndnum = love.math.random(1, totalmass)
+	for k, v in ipairs(potentialtargets) do
+		if rndnum <= v.mass then
+			-- found a target component
+			--! apply damage
+			compname = comp.name
+			victim.compname.hitpoints = victim.compname.hitpoints - damageinflicted
+			if victim.compname.hitpoints <= 0 then victim.compname.hitpoints = 0 end
+			break
+		else
+			rndnum = rndnum - v.mass
+		end
+	end
+
 end
 
 function functions.updateCurrentMass()
 	-- cycle through the entities and recalculate mass
-	
+
+end
 
 
 return functions
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
