@@ -38,13 +38,13 @@ function cmp.init()
         c.desiredfacing = c.value
    end)
 
-   concord.component("chassis", function(c)
+   concord.component("chassis", function(c, navy)
        c.mass = 100
 	   c.currentmass = c.mass
        c.hitpoints = 100
        c.massCapacity = 100
        c.eConsumption = 100
-       c.navy = love.math.random(1,2)
+       c.navy = navy or love.math.random(1,2)
    end)
 
    concord.component("engine", function(c, force)
@@ -72,10 +72,10 @@ function cmp.init()
    end)
 
    concord.component("fueltank", function(c)
-	   c.value = 100
+	   c.value = 5000
 	   c.mass = 100
 	   c.hitpoints = 100
-	   c.capacity = 100
+	   c.capacity = 1000
 	   c.currentmass = c.mass + (c.capacity * FUEL_MASS)
    end)
 

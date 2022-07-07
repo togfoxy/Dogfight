@@ -77,29 +77,28 @@ end
 
 function love.mousepressed( x, y, button, istouch, presses )
 
+	local wx,wy = cam:toWorld(x, y)	-- converts screen x/y to world x/y
+
 	if button == 1 then
 		-- convert mouse point to the physics coordinates
-		local x1 = x / BOX2D_SCALE
-		local y1 = y / BOX2D_SCALE
+		local x1 = wx
+		local y1 = wy
 
+		VESSELS_SELECTED = 0
 		for k, entity in pairs(ECS_ENTITIES) do
 			if entity:has("vessel") then
 				local physEntity = fun.getBody(entity.uid.value)
+				local x2 = physEntity.body:getX()
+				local y2 = physEntity.body:getY()
 
-				x2 = physEntity.body:getX()
-				y2 = physEntity.body:getY()
+				x2 = x2 * BOX2D_SCALE
+				y2 = y2 * BOX2D_SCALE
 
 				local dist = cf.GetDistance(x1, y1, x2, y2)
-				if dist <= entity.position.radius then
-					if entity.isSelected then
-						entity:remove("isSelected")		--! small bug - need to check if this is the last selected and then remove it
-						VESSELS_SELECTED = VESSELS_SELECTED - 1
-						SELECTED_VESSEL = nil
-					else
+				if dist <= 15 then
 						entity:ensure("isSelected")
 						VESSELS_SELECTED = VESSELS_SELECTED + 1
 						SELECTED_VESSEL = entity
-					end
 				else
 					entity:remove("isSelected")
 				end
@@ -154,65 +153,51 @@ function beginContact(a, b, coll)
 		end
 	else
 		-- legit collision
-		-- local physEntity1 = a:getBody()	-- a and b are fixtures. Return the parent body
-		-- local physEntity2 = b:getBody()
-		-- local acelx1, acely1 = physEntity1:getLinearVelocity()
-		-- local acelx2, acely2 = physEntity2:getLinearVelocity()
-		--
-		-- local acel1 = cf.GetDistance(physEntity1:getX(), physEntity1:getY(), acelx1, acely1)
-		-- local acel2 = cf.GetDistance(physEntity2:getX(), physEntity2:getY(), acelx2, acely2)
-		--
-		-- local force1 = physEntity1:getMass() * acel1
-		-- local force2 = physEntity2:getMass() * acel2
-		--
-		-- print("Impact:", force1, force2)
-
 		entity1 = fun.getEntity(uid1)
 		entity2 = fun.getEntity(uid2)
-		assert(entity1 ~= nil)
-		assert(entity2 ~= nil)
+		-- assert(entity1 ~= nil)
+		-- assert(entity2 ~= nil)
 
+		if entity1 ~= nil and entity2 ~= nil then
+			local combatoutcomes = {}
+			-- 1 = vessel; 2 = projectile
 
-		local combatoutcomes = {}
-		-- 1 = vessel; 2 = projectile
+			combatoutcomes[1] = {0, 1}		-- row 1 = vessel
+			combatoutcomes[2] = {x, 0}		-- row 2 = projectile
 
-		combatoutcomes[1] = {0, 1}		-- row 1 = vessel
-		combatoutcomes[2] = {x, 0}		-- row 2 = projectile
+			-- 0 means no damage; 1 means the entity1 takes damage; 2 means entity2 takes damage
+			local row, col
+			if entity1:has("vessel") then
+				row = 1
+			elseif entity1:has("projectile") then
+				row = 2
+			else
+				error()
+			end
+			if entity2:has("vessel") then
+				col = 1
+			elseif entity2:has("projectile") then
+				col = 2
+			else
+				print(entity1isborder, entity2isborder)
+				error()
+			end
+			local combatresult = combatoutcomes[row][col]
 
-		-- 0 means no damage; 1 means the entity1 takes damage; 2 means entity2 takes damage
-		local row, col
-		if entity1:has("vessel") then
-			row = 1
-		elseif entity1:has("projectile") then
-			row = 2
-		else
-			error()
+			if combatresult == 0 then
+				-- do nothing
+			elseif combatresult == 1 then
+				-- entity1 takes damage
+				fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
+				--! destroy the ordinance
+			elseif combatresult == 2 then
+				-- entity2 takes damage
+				fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
+				--! destroy the ordinance
+			else
+				error()
+			end
 		end
-		if entity2:has("vessel") then
-			col = 1
-		elseif entity2:has("projectile") then
-			col = 2
-		else
-			print(entity1isborder, entity2isborder)
-			error()
-		end
-		local combatresult = combatoutcomes[row][col]
-
-		if combatresult == 0 then
-			-- do nothing
-		elseif combatresult == 1 then
-			-- entity1 takes damage
-			fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
-			--! destroy the ordinance
-		elseif combatresult == 2 then
-			-- entity2 takes damage
-			fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
-			--! destroy the ordinance
-		else
-			error()
-		end
-
-
 	end
 end
 
@@ -281,9 +266,13 @@ function love.load()
 	PHYSICSBORDER4.fixture:setUserData("BORDERRIGHT")
 
 	-- inject initial agents into the dish
-	for i = 1, INITAL_NUMBER_OF_ENTITIES do
-		fun.addEntity()
-	end
+	-- for i = 1, INITAL_NUMBER_OF_ENTITIES do
+	-- 	fun.addEntity()
+	-- end
+	fun.addEntity(1)
+	fun.addEntity(2)
+
+
 end
 
 
@@ -334,6 +323,8 @@ function love.update(dt)
 	ECSWORLD:emit("coreData", dt)
 
 	PHYSICSWORLD:update(dt) --this puts the world into motion
+
+	fun.checkForKills()
 
 	cam:setPos(TRANSLATEX,	TRANSLATEY)
 	cam:setZoom(ZOOMFACTOR)
