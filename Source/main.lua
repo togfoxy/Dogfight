@@ -84,7 +84,7 @@ function love.mousepressed( x, y, button, istouch, presses )
 
 		for k, entity in pairs(ECS_ENTITIES) do
 			if entity:has("vessel") then
-				local physEntity = cf.getBody(entity.uid.value)
+				local physEntity = fun.getBody(entity.uid.value)
 
 				x2 = physEntity.body:getX()
 				y2 = physEntity.body:getY()
@@ -100,6 +100,8 @@ function love.mousepressed( x, y, button, istouch, presses )
 						VESSELS_SELECTED = VESSELS_SELECTED + 1
 						SELECTED_VESSEL = entity
 					end
+				else
+					entity:remove("isSelected")
 				end
 			end
 		end
@@ -195,8 +197,6 @@ function beginContact(a, b, coll)
 			error()
 		end
 		local combatresult = combatoutcomes[row][col]
-
-print("Combat outcome: " .. row, col, combatresult)
 
 		if combatresult == 0 then
 			-- do nothing

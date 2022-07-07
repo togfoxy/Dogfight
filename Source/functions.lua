@@ -135,7 +135,7 @@ function functions.killEntity(entity)
 
     -- destroy the entity
     entity:destroy()
-    print("Entity removed.")
+    -- print("Entity removed.")
 
     -- unit test
     assert(#ECS_ENTITIES < ecsOrigsize)
@@ -182,45 +182,58 @@ function functions.damageEntity(victim, ordinance)
     end
 
     -- choose a random component
-    local allcomponents = victim:getComponents()
-    --print(inspect(allcomponents))
-    print("``````````````````")
-    for k, v in ipairs(victim:getComponents()) do
-        print("Name: " .. v.__name)
-        if v.hitpoints ~= nil then
-            print("Hitpoints: " .. v.hitpoints)
-        end
-        -- print(inspect(v))
-        print("------------")
-
-		-- local comp = {}
-		-- local totalmass = 0
-		-- if v.hitpoints ~= nil then
-		-- 	comp.name = v.__name
-		-- 	comp.mass = v.mass
-		-- 	comp.hitpoints = v.hitpoints
-		-- 	table.insert(potentialtargets, comp)
-		-- 	totalmass = totalmass + v.mass
-		-- end
+    local potentialtargets = {}
+    local comp = {}
+    local totalmass = 0
+    if victim:has("chassis") then
+        comp = {}
+		comp.name = "chassis"
+        comp.mass = victim.chassis.currentmass
+		comp.hitpoints = victim.chassis.hitpoints
+		table.insert(potentialtargets, comp)
+		totalmass = totalmass + victim.chassis.currentmass
+    end
+    if victim:has("engine") then
+        comp = {}
+		comp.name = "engine"
+        comp.mass = victim.engine.currentmass
+		comp.hitpoints = victim.engine.hitpoints
+		table.insert(potentialtargets, comp)
+		totalmass = totalmass + victim.chassis.currentmass
+    end
+    if victim:has("gun_projectile") then
+        comp = {}
+		comp.name = "gun_projectile"
+        comp.mass = victim.gun_projectile.currentmass
+		comp.hitpoints = victim.gun_projectile.hitpoints
+		table.insert(potentialtargets, comp)
+		totalmass = totalmass + victim.gun_projectile.currentmass
+    end
+    if victim:has("fueltank") then
+        comp = {}
+        comp.name = "fueltank"
+        comp.mass = victim.fueltank.currentmass
+        comp.hitpoints = victim.fueltank.hitpoints
+        table.insert(potentialtargets, comp)
+        totalmass = totalmass + victim.fueltank.currentmass
     end
 
-
-print(inspect(potentialtargets))
-print("******************")
-print(inspect(victim))
-error()
+-- print(inspect(potentialtargets))
 
 	local rndnum = love.math.random(1, totalmass)
-	for k, v in ipairs(potentialtargets) do
-		if rndnum <= v.mass then
+	for k, comp in pairs(potentialtargets) do
+-- print(rndnum)
+-- print(comp.mass)
+		if rndnum <= comp.mass then
 			-- found a target component
 			--! apply damage
 			compname = comp.name
-			victim.compname.hitpoints = victim.compname.hitpoints - damageinflicted
-			if victim.compname.hitpoints <= 0 then victim.compname.hitpoints = 0 end
+			-- victim.[compname].hitpoints = victim.[compname].hitpoints - damageinflicted
+			-- if victim.[compname].hitpoints <= 0 then victim.[compname].hitpoints = 0 end
+    print("Damage applied to " .. compname)
 			break
 		else
-			rndnum = rndnum - v.mass
+			rndnum = rndnum - comp.mass
 		end
 	end
 
