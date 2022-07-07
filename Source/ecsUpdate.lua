@@ -1,7 +1,5 @@
 ecsUpdate = {}
 
-
-
 local function getNewFacing(entity, dt)
 
     -- turn if necessary
@@ -66,14 +64,27 @@ function ecsUpdate.init()
     })
     function systemEngine:engines(dt)
         for _, entity in ipairs(self.pool) do
-            local facing = entity.facing.value       -- 0 -> 359
-            local vectordistance = 5000 * dt
-            local x1,y1 = fun.getBodyXY(entity.uid.value)
-            local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
-            local xvector = (x2 - x1) * entity.engine.force * dt     --! can adjust the force and the energy used
-            local yvector = (y2 - y1) * entity.engine.force * dt
-            local physEntity = fun.getBody(entity.uid.value)
-            physEntity.body:applyForce(xvector, yvector)
+			if entity.engine.hitpoints > 0 then
+				if entity:has("fueltank") then
+					if entity.fueltank.value > 0 then
+						local facing = entity.facing.value       -- 0 -> 359
+						local vectordistance = 5000 * dt
+						local x1,y1 = fun.getBodyXY(entity.uid.value)
+						local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
+						local xvector = (x2 - x1) * entity.engine.force * dt     --! can adjust the force and the energy used
+						local yvector = (y2 - y1) * entity.engine.force * dt
+						local physEntity = fun.getBody(entity.uid.value)
+						physEntity.body:applyForce(xvector, yvector)
+						
+						local fuelused = entity.engine.force * dt
+						entity.fueltank.value = entity.fueltank.value - fuelused
+						entity.coreData.currentMass = entity.coreData.currentMass - (fuelused * FUEL_MASS)
+						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
+					end
+				else
+					error("Engine with no fuel tank = impossible!")
+				end
+			end
         end
     end
     ECSWORLD:addSystems(systemEngine)
@@ -103,31 +114,75 @@ function ecsUpdate.init()
         for _, entity in ipairs(self.pool) do
             entity.gun_projectile.timer = entity.gun_projectile.timer - dt
             if entity.gun_projectile.timer <= 0 then
-                entity.gun_projectile.timer = 4
+				if entity.gun_projectile.ammoRemaining > 0 then
+					if entity.gun_projectile.hitpoints > 0 then
+						entity.gun_projectile.timer = 4
 
-                -- create a projectile entity
-                local newEntity = fun.addProjectile(entity)
-                assert(newEntity ~= nil)
+						-- create a projectile entity
+						local newEntity = fun.addProjectile(entity)
+						assert(newEntity ~= nil)
 
-                -- apply an impulse immediately
+						-- apply an impulse immediately
 
-                local x,y = fun.getBodyXY(entity.uid.value)
-                -- add radius + 1 in the direction of facing
-                local facing = entity.facing.value
-                local distance = entity.position.radius + 100
-                local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
+						local x,y = fun.getBodyXY(entity.uid.value)
+						-- add radius + 1 in the direction of facing
+						local facing = entity.facing.value
+						local distance = entity.position.radius + 100
+						local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
 
-                local impulsevectorx, impulsevectory
-                local scale = entity.gun_projectile.force
-                impulsevectorx = (newx - x) * scale
-                impulsevectory = (newy - y) * scale
+						local impulsevectorx, impulsevectory
+						local scale = entity.gun_projectile.force
+						impulsevectorx = (newx - x) * scale
+						impulsevectory = (newy - y) * scale
 
-                newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
-                -- newEntity.body:setLinearVelocity(10000000, 10000000)
-                -- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
+						newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
+						-- newEntity.body:setLinearVelocity(10000000, 10000000)
+						-- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
+						
+						-- reduce mass through use of ammo
+						local ammoused = 1
+						entity.gun_projectile.ammoRemaining = entity.gun_projectile.ammoRemaining - ammoused
+						entity.coreData.currentMass = entity.coreData.currentMass - (ammoused * ammoMass)
+						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
+					end
+				end
             end
         end
     end
     ECSWORLD:addSystems(systemShooting)
-end
-return ecsUpdate
+	
+	systemcoreData = concord.system({
+		pool  = {"coreData"}
+	})
+	function systemcoreData:coreData(dt)
+		for _, entity in ipairs(self.pool) do
+		
+			-- update physics mass with core data mass
+			local physEntity = fun.getBody(entity.uid.value)
+			-- physEntity.body:setMass(entity.coreData.currentMass)
+		
+		
+		end
+	end
+	ECSWORLD:addSystems(systemcoreData)
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

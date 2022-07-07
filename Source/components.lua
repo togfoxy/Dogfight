@@ -8,12 +8,17 @@ function cmp.init()
 
     concord.component("drawable")   -- will be drawn during love.draw()
     concord.component("isSelected") -- clicked by the mouse
+	
+	-- types of entity
     concord.component("vessel")
     concord.component("projectile", function(c)
         c.mindamage = 1
-        c.maxdamage = 200
+        c.maxdamage = 50
     end)
-    concord.component("missile")
+    concord.component("missile", function(d)
+        c.mindamage = 50
+        c.maxdamage = 200	
+	end)
 
     concord.component("position", function(c, rad)
         if rad == nil then
@@ -35,6 +40,7 @@ function cmp.init()
 
    concord.component("chassis", function(c)
        c.mass = 100
+	   c.currentmass = c.mass
        c.hitpoints = 100
        c.massCapacity = 100
        c.eConsumption = 100
@@ -43,6 +49,7 @@ function cmp.init()
 
    concord.component("engine", function(c, force)
        c.mass = 100
+	   c.currentmass = c.mass
        c.hitpoints = 100
        c.fConsumpption = 100
        c.turnrate = 60      -- degrees
@@ -61,8 +68,20 @@ function cmp.init()
        c.ammoMass = 1          -- each
        c.active = true         -- set to TRUE to make it shoot
        c.timer = 0              -- frequency of shot
+	   c.currentmass = c.mass + (c.ammoRemaining * c.ammoMass)
    end)
-
+   
+   concord.component("fueltank"), function(c)
+	   c.value = 100
+	   c.mass = 100
+	   c.hitpoints = 100
+	   c.capacity = 100
+	   c.currentmass = c.mass + (c.capacity * FUEL_MASS)
+   end)
+	
+   concord.component("coreData"), function(c)
+	   c.currentMass = 0	   
+   end)
 end
 
 return cmp
