@@ -36,51 +36,6 @@ local function getNewFacing(entity, dt)
     if newheading > 359 then newheading = newheading - 360 end
 
     return newheading
-
-	-- determine target
-		-- scan all targets and determine which one is closest to centre line
-
-		-- get entity x/y
-		-- local x,y = fun.getBodyXY(entity.uid.value)
-		-- add arbitrary distance in direction of facing
-		-- local facing = entity.facing.value
-		-- local distance = 5		-- remember these are BOX coordinates
-		-- local x1, x2 = cf.AddVectorToPoint(x,y,facing,distance)		-- x1, y1 is vector from origin to direction entity is facing. Important for dot product.
-
-		-- get deviation from straight ahead
-
-		-- for k, targetentity in pairs(ECS_ENTITIES) do
-			-- local targetx, targety = fun.getBodyXY(targetentity.uid.value)
-			-- local deltatargetx = targetx - x	-- the dot product assumes the same origin so need to translate
-			-- local deltatargety = targety - y
-			-- local dotv = cf.dotVectors(x1,x2, deltatargetx, deltatargety)
-			-- if dotv > 0 then
-				-- target is in front of entity
-				-- ! finish this
-
-				-- d = |a * targetx + b * targety + c|
-				-- d = d / sqroot(a^2 + b^2)
-
-
-				-- examples distance between 0,0 and 3x + 4y + 10 = 0
-
-
-			-- else
-				-- target is behind entity
-			-- end
-		-- end
-
-	-- determine sweet spot for each weapon
-		-- sweet spot for projectiles
-			-- look up q table
-		-- sweet spot for missiles
-			-- look up q table
-
-	-- determine closest sweet spot
-
-	-- if not in sweet spot then face to get into sweet spot
-
-	-- if in sweet spot then face to target
 end
 
 local function getNewTarget(entity)
@@ -96,8 +51,8 @@ local function getNewTarget(entity)
                 if dotv > 0 then
                     -- target is in front of entity
                     entity.coreData.currentTargetTimer = 5
-print("target aquired")
-                    return
+    print("target aquired")
+                    return targetentity
                 end
             end
         end
@@ -105,10 +60,10 @@ print("target aquired")
     return nil      -- no target found
 end
 
-local function getNewDesiredFacing(entity)
+local function getNewDesiredFacing(entity, dt)
 
     if entity:has("coreData") then
-        if entity.coreData.currentTarget == nil then
+        if entity.coreData.currentTarget == nil or entity.coreData.currentTargetTimer <= 0 then
             -- find a new target
             entity.coreData.currentTarget = getNewTarget(entity)
             if entity.coreData.currentTarget ~= nil then
@@ -121,9 +76,12 @@ local function getNewDesiredFacing(entity)
             entity.coreData.currentTargetTimer = entity.coreData.currentTargetTimer - dt
             local x1, y1 = fun.getBodyXY(entity.uid.value)            -- box2d coordinates
             local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
-            return cf.getBearing(x1,y1,x2,y2)
+            local newheading = cf.getBearing(x1,y1,x2,y2)
+            print("Desired heading is " .. newheading)
+            return newheading
         else
             -- no target. Turn to random bearing
+            print("Desired heading is random")
             return love.math.random(0, 359)
         end
     else
@@ -193,10 +151,10 @@ function ecsUpdate.init()
     function systemFacing:facing(dt)
         for _, entity in ipairs(self.pool) do
             entity.facing.timer = entity.facing.timer - dt
-            if entity.facing.timer <= 0 then
+            if entity.facing.timer <= 0  or entity.facing.desiredfacing == nil then
                 -- new desired facing
-                entity.facing.desiredfacing = getNewDesiredFacing(entity)       -- turns towards target (if there is one)
-                entity.facing.timer = 5     -- seconds
+                entity.facing.desiredfacing = getNewDesiredFacing(entity, dt)       -- turns towards target (if there is one)
+                entity.facing.timer = 1     -- seconds
             end
             if entity:has("engine") then
                 entity.facing.value = getNewFacing(entity, dt)      -- turns to desired facing as fast as rate allows

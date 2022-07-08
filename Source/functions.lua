@@ -232,15 +232,19 @@ function functions.damageEntity(victim, ordinance)
 
             if compname == "chassis" then
                 victim.chassis.hitpoints = victim.chassis.hitpoints - damageinflicted
+                if victim.chassis.hitpoints <= 0 then victim.chassis.hitpoints = 0 end
             end
             if compname == "engine" then
                 victim.engine.hitpoints = victim.engine.hitpoints - damageinflicted
+                if victim.engine.hitpoints <= 0 then victim.engine.hitpoints end
             end
             if compname == "gun_projectile" then
-                victim.engine.hitpoints = victim.gun_projectile.hitpoints - damageinflicted
+                victim.gun_projectile.hitpoints = victim.gun_projectile.hitpoints - damageinflicted
+                if victim.gun_projectile.hitpoints <= 0 then victim.gun_projectile.hitpoints = 0 end
             end
             if compname == "fueltank" then
-                victim.engine.hitpoints = victim.fueltank.hitpoints - damageinflicted
+                victim.fueltank.hitpoints = victim.fueltank.hitpoints - damageinflicted
+                if victim.fueltank.hitpoints <= 0 then  victim.fueltank.hitpoints = 0 end
             end
 			break
 		else
