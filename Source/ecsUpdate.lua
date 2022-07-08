@@ -83,9 +83,13 @@ local function getNewDesiredFacing(entity, dt)
             entity.coreData.currentTargetTimer = entity.coreData.currentTargetTimer - dt
             local x1, y1 = fun.getBodyXY(entity.uid.value)            -- box2d coordinates
             local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
-            local newheading = cf.getBearing(x1, y1, x2, y2)
-            -- print("Desired heading is " .. newheading)
-            return newheading
+            if x2 ~= nil then
+                local newheading = cf.getBearing(x1, y1, x2, y2)
+                -- print("Desired heading is " .. newheading)
+                return newheading
+            else
+                return love.math.random(0, 359)
+            end
         else
             -- no target. Turn to random bearing
             -- print("Desired heading is random")
@@ -175,40 +179,47 @@ function ecsUpdate.init()
     })
     function systemShooting:shooting(dt)
         for _, entity in ipairs(self.pool) do
-            entity.gun_projectile.timer = entity.gun_projectile.timer - dt      --! change this if adding more weapons
-            if entity.gun_projectile.timer <= 0 then
-				if entity.gun_projectile.ammoRemaining > 0 then
-					if entity.gun_projectile.hitpoints > 0 then
-						entity.gun_projectile.timer = 1
+            if entity.coreData.currentTarget ~= nil then
+                local x,y = fun.getBodyXY(entity.uid.value)
+                local facing = entity.facing.value
+                local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
+                if x2 ~= nil then
+                    if cf.isInFront(x, y, facing, x2, y2) then
+                        entity.gun_projectile.timer = entity.gun_projectile.timer - dt      --! change this if adding more weapons
+                        if entity.gun_projectile.timer <= 0 then
+                            if entity.gun_projectile.hitpoints > 0 then
+    			                if entity.gun_projectile.ammoRemaining > 0 then
+            						entity.gun_projectile.timer = 1
 
-						-- create a projectile entity
-						local newEntity = fun.addProjectile(entity)
-						assert(newEntity ~= nil)
+                                    -- create a projectile entity
+            						local newEntity = fun.addProjectile(entity)
+            						assert(newEntity ~= nil)
 
-						-- apply an impulse immediately
+            						-- apply an impulse immediately
+            						-- add radius + 1 in the direction of facing
+            						local facing = entity.facing.value
+            						local distance = entity.position.radius + 100     -- 100 is arbitrary value
+            						local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
 
-						local x,y = fun.getBodyXY(entity.uid.value)
-						-- add radius + 1 in the direction of facing
-						local facing = entity.facing.value
-						local distance = entity.position.radius + 100
-						local newx, newy = cf.AddVectorToPoint(x,y,facing,distance)
+            						local impulsevectorx, impulsevectory
+            						local scale = entity.gun_projectile.force
+            						impulsevectorx = (newx - x) * scale
+            						impulsevectory = (newy - y) * scale
 
-						local impulsevectorx, impulsevectory
-						local scale = entity.gun_projectile.force
-						impulsevectorx = (newx - x) * scale
-						impulsevectory = (newy - y) * scale
+            						newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
+            						-- newEntity.body:setLinearVelocity(10000000, 10000000)
+            						-- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
 
-						newEntity.body:applyLinearImpulse(impulsevectorx * scale, impulsevectory * scale)
-						-- newEntity.body:setLinearVelocity(10000000, 10000000)
-						-- newEntity.body:applyForce(impulsevectorx * scale, impulsevectory * scale)
-
-						-- reduce mass through use of ammo
-						local ammoused = 1
-						entity.gun_projectile.ammoRemaining = entity.gun_projectile.ammoRemaining - ammoused
-						entity.coreData.currentMass = entity.coreData.currentMass - (ammoused * entity.gun_projectile.ammoMass)
-						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
-					end
-				end
+            						-- reduce mass through use of ammo
+            						local ammoused = 1
+            						entity.gun_projectile.ammoRemaining = entity.gun_projectile.ammoRemaining - ammoused
+            						entity.coreData.currentMass = entity.coreData.currentMass - (ammoused * entity.gun_projectile.ammoMass)
+            						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
+            					end
+            				end
+                        end
+                    end
+                end
             end
         end
     end
