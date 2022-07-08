@@ -160,7 +160,10 @@ function functions.getBodyXY(uid)
     assert(uid ~= nil)
     local physEntity = fun.getBody(uid)
     assert(physEntity ~= nil)
-    return physEntity.body:getX(), physEntity.body:getY()
+    if physEntity ~= nil then       --! will check everything for nil!!! :(
+        return physEntity.body:getX(), physEntity.body:getY()
+    end
+    return nil
 end
 
 function functions.getEntity(uid)
@@ -187,7 +190,7 @@ function functions.damageEntity(victim, ordinance)
     local potentialtargets = {}
     local comp = {}
     local totalmass = 0
-    if victim:has("chassis") then
+    if victim:has("chassis") and victim.chassis.hitpoints > 0 then
         comp = {}
 		comp.name = "chassis"
         comp.mass = victim.chassis.currentmass
@@ -195,7 +198,7 @@ function functions.damageEntity(victim, ordinance)
 		table.insert(potentialtargets, comp)
 		totalmass = totalmass + victim.chassis.currentmass
     end
-    if victim:has("engine") then
+    if victim:has("engine") and victim.engine.hitpoints > 0 then
         comp = {}
 		comp.name = "engine"
         comp.mass = victim.engine.currentmass
@@ -203,7 +206,7 @@ function functions.damageEntity(victim, ordinance)
 		table.insert(potentialtargets, comp)
 		totalmass = totalmass + victim.chassis.currentmass
     end
-    if victim:has("gun_projectile") then
+    if victim:has("gun_projectile") and victim.gun_projectile.hitpoints > 0 then
         comp = {}
 		comp.name = "gun_projectile"
         comp.mass = victim.gun_projectile.currentmass
@@ -211,7 +214,7 @@ function functions.damageEntity(victim, ordinance)
 		table.insert(potentialtargets, comp)
 		totalmass = totalmass + victim.gun_projectile.currentmass
     end
-    if victim:has("fueltank") then
+    if victim:has("fueltank") and victim.fueltank.hitpoints > 0 then
         comp = {}
         comp.name = "fueltank"
         comp.mass = victim.fueltank.currentmass
@@ -227,16 +230,13 @@ function functions.damageEntity(victim, ordinance)
 			--! apply damage
 			compname = comp.name
 
-			--victim[compname]["hitpoints"] = victim.[compname]["hitpoints"] - damageinflicted
-			-- if victim[compname].hitpoints <= 0 then victim.[compname].hitpoints = 0 end
-
             if compname == "chassis" then
                 victim.chassis.hitpoints = victim.chassis.hitpoints - damageinflicted
                 if victim.chassis.hitpoints <= 0 then victim.chassis.hitpoints = 0 end
             end
             if compname == "engine" then
                 victim.engine.hitpoints = victim.engine.hitpoints - damageinflicted
-                if victim.engine.hitpoints <= 0 then victim.engine.hitpoints end
+                if victim.engine.hitpoints <= 0 then victim.engine.hitpoints = 0 end
             end
             if compname == "gun_projectile" then
                 victim.gun_projectile.hitpoints = victim.gun_projectile.hitpoints - damageinflicted

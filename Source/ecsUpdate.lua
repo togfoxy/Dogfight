@@ -40,19 +40,24 @@ end
 
 local function getNewTarget(entity)
     local newtarget
-    local x1, y1 = fun.getBodyXY(entity.uid.value)
+    local x, y = fun.getBodyXY(entity.uid.value)
+    local facing = entity.facing.value
+    local x1, y1 = cf.AddVectorToPoint(x,y,facing,5)
+    local deltax1 = x1 - x
+    local deltay1 = y1 - y
     for k, targetentity in pairs(ECS_ENTITIES) do
         if targetentity:has("vessel") then
             if targetentity.chassis.navy ~= entity.chassis.navy then
                 local targetx, targety = fun.getBodyXY(targetentity.uid.value)
-                local deltatargetx = targetx - x1	-- the dot product assumes the same origin so need to translate
-                local deltatargety = targety - y1
-                local dotv = cf.dotVectors(x1, y1, deltatargetx, deltatargety)
+                local deltatargetx = targetx - x	-- the dot product assumes the same origin so need to translate
+                local deltatargety = targety - y
+
+                local dotv = cf.dotVectors(deltax1, deltay1, deltatargetx, deltatargety)
+
                 if dotv > 0 then
                     -- target is in front of entity
-                    entity.coreData.currentTargetTimer = 5
-    print("target aquired")
                     return targetentity
+                else
                 end
             end
         end
@@ -67,7 +72,9 @@ local function getNewDesiredFacing(entity, dt)
             -- find a new target
             entity.coreData.currentTarget = getNewTarget(entity)
             if entity.coreData.currentTarget ~= nil then
-                entity.coreData.currentTargetTimer = 5
+                entity.coreData.currentTargetTimer = 3
+            else
+                -- no target
             end
         end
 
@@ -76,12 +83,12 @@ local function getNewDesiredFacing(entity, dt)
             entity.coreData.currentTargetTimer = entity.coreData.currentTargetTimer - dt
             local x1, y1 = fun.getBodyXY(entity.uid.value)            -- box2d coordinates
             local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
-            local newheading = cf.getBearing(x1,y1,x2,y2)
-            print("Desired heading is " .. newheading)
+            local newheading = cf.getBearing(x1, y1, x2, y2)
+            -- print("Desired heading is " .. newheading)
             return newheading
         else
             -- no target. Turn to random bearing
-            print("Desired heading is random")
+            -- print("Desired heading is random")
             return love.math.random(0, 359)
         end
     else
