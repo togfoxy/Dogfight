@@ -54,7 +54,7 @@ function cmp.init()
        c.fConsumpption = 100
        c.turnrate = 60      -- degrees
         if force == nil then
-            c.force = 0     --!
+            c.force = 25     --!
         else
             c.force = force
         end

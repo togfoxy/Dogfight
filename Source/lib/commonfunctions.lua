@@ -310,3 +310,29 @@ function adjustHeading(heading, amount)
     if newheading < 0 then newheading = 360 + newheading end     -- heading is a negative value so '+' it and 360
     return newheading
 end
+
+function isInFront(x, y, facing, x2, y2)
+    -- x,y is the object that is looking (real coordinates, i.e. not normalised and not translated to origin)
+    -- facing is the facing of the object at x, y
+    -- x2, y2 is the target that the first object is looking for
+
+    -- get a vector in the direction of facing
+    local x1, y1 = cf.AddVectorToPoint(x,y,facing,5)        -- 5 is an arbitrary value that doesn't matter
+    -- reduce the real vector down to a delta vector
+    local deltax1 = x1 - x
+    local deltay1 = y1 - y
+
+    -- reduce the vector from object to target down to a delta vector
+    local deltax2 = x2 - x	-- the dot product assumes the same origin so need to translate
+    local deltay2 = y2 - y
+
+    -- can now do a dot product
+    local dotv = cf.dotVectors(deltax1, deltay1, deltax2, deltay2)
+
+    if dotv > 0 then
+        -- target is in front of entity
+        return true
+    else
+        return false
+    end
+end

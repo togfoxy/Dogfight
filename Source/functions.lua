@@ -33,6 +33,7 @@ function functions.addEntity(navy)
 	physicsEntity.fixture = love.physics.newFixture(physicsEntity.body, physicsEntity.shape, 1)		-- the 1 is the density
 	physicsEntity.fixture:setRestitution(0)
 	physicsEntity.fixture:setSensor(false)
+    physicsEntity.fixture:setGroupIndex( -1 )
 	physicsEntity.fixture:setUserData(entity.uid.value)
 
     table.insert(PHYSICS_ENTITIES, physicsEntity)
@@ -69,6 +70,7 @@ function functions.addProjectile(parentEntity)
     physicsEntity.fixture = love.physics.newFixture(physicsEntity.body, physicsEntity.shape, 1)		-- the 1 is the density
     physicsEntity.fixture:setRestitution(0)
     physicsEntity.fixture:setSensor(false)
+    physicsEntity.fixture:setGroupIndex( -2 )
     physicsEntity.fixture:setUserData(entity.uid.value)
 
     table.insert(PHYSICS_ENTITIES, physicsEntity)
@@ -159,7 +161,6 @@ function functions.getBodyXY(uid)
     -- returns BOX2d coordinates
     assert(uid ~= nil)
     local physEntity = fun.getBody(uid)
-    assert(physEntity ~= nil)
     if physEntity ~= nil then       --! will check everything for nil!!! :(
         return physEntity.body:getX(), physEntity.body:getY()
     end
