@@ -81,7 +81,10 @@ function cmp.init()
 
    concord.component("coreData", function(c)
 	   c.currentMass = 0
+       c.currentTarget = nil            -- an entity
+       c.currentTargetTimer = 0
    end)
+
 end
 
 return cmp

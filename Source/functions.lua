@@ -14,6 +14,7 @@ function functions.addEntity(navy)
 	:give("fueltank")
     :give("chassis", navy)
     :give("gun_projectile")
+    -- :give("target")     -- can select targets (enemy vessels)
 
 	entity.coreData.currentMass = entity.engine.currentmass + entity.fueltank.currentmass + entity.chassis.currentmass + entity.gun_projectile.currentmass
 
