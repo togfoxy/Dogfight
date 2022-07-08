@@ -22,10 +22,6 @@ ecsUpdate = require 'ecsUpdate'
 draw = require 'draw'
 enum = require 'enum'
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
-SCREEN_STACK = {}
-
 function love.keyreleased( key, scancode )
 	if key == "escape" then
 		cf.RemoveScreen(SCREEN_STACK)
@@ -159,44 +155,7 @@ function beginContact(a, b, coll)
 		-- assert(entity2 ~= nil)
 
 		if entity1 ~= nil and entity2 ~= nil then
-			local combatoutcomes = {}
-			-- 1 = vessel; 2 = projectile
-
-			combatoutcomes[1] = {0, 1}		-- row 1 = vessel
-			combatoutcomes[2] = {x, 0}		-- row 2 = projectile
-
-			-- 0 means no damage; 1 means the entity1 takes damage; 2 means entity2 takes damage
-			local row, col
-			if entity1:has("vessel") then
-				row = 1
-			elseif entity1:has("projectile") then
-				row = 2
-			else
-				error()
-			end
-			if entity2:has("vessel") then
-				col = 1
-			elseif entity2:has("projectile") then
-				col = 2
-			else
-				print(entity1isborder, entity2isborder)
-				error()
-			end
-			local combatresult = combatoutcomes[row][col]
-
-			if combatresult == 0 then
-				-- do nothing
-			elseif combatresult == 1 then
-				-- entity1 takes damage
-				fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
-				--! destroy the ordinance
-			elseif combatresult == 2 then
-				-- entity2 takes damage
-				fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
-				--! destroy the ordinance
-			else
-				error()
-			end
+			fun.determineCombatOutcome(entity1, entity2)
 		end
 	end
 end
@@ -275,7 +234,6 @@ function love.load()
 
 end
 
-
 function love.draw()
 
     res.start()
@@ -311,7 +269,6 @@ function love.draw()
 
     res.stop()
 end
-
 
 function love.update(dt)
 

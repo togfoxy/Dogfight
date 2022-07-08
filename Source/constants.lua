@@ -3,11 +3,13 @@ constants = {}
 function constants.load()
     -- constants and globals
 
+	SCREEN_WIDTH = 1920
+	SCREEN_HEIGHT = 1080
+	SCREEN_STACK = {}
 
     INITAL_NUMBER_OF_ENTITIES = 2
     BOX2D_SCALE = 5
     ECS_ENTITIES = {}
-    ECS_ENTITIES_PROJECTILES = {}
     PHYSICS_ENTITIES = {}
 
     RADIUSMASSRATIO = 5
