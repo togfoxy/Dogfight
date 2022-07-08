@@ -274,7 +274,7 @@ function love.update(dt)
 
 	ECSWORLD:emit("update", dt)
 	ECSWORLD:emit("facing", dt)
-	-- ECSWORLD:emit("targeting", dt)	--!
+	-- ECSWORLD:emit("target", dt)	--!
 	ECSWORLD:emit("shooting", dt)
 	ECSWORLD:emit("engines", dt)
 	ECSWORLD:emit("coreData", dt)

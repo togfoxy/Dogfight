@@ -54,7 +54,7 @@ function cmp.init()
        c.fConsumpption = 100
        c.turnrate = 60      -- degrees
         if force == nil then
-            c.force = 100
+            c.force = 0     --!
         else
             c.force = force
         end
@@ -81,7 +81,10 @@ function cmp.init()
 
    concord.component("coreData", function(c)
 	   c.currentMass = 0
+       c.currentTarget = nil            -- an entity
+       c.currentTargetTimer = 0
    end)
+
 end
 
 return cmp
