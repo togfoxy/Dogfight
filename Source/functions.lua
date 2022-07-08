@@ -155,6 +155,7 @@ end
 
 function functions.getBodyXY(uid)
     -- retuns the x and y of the body with the provided uid
+    -- returns BOX2d coordinates
     assert(uid ~= nil)
     local physEntity = fun.getBody(uid)
     assert(physEntity ~= nil)
@@ -260,9 +261,59 @@ function functions.checkForKills()
                 -- boom
                 fun.killEntity(entity)
                 print("Entity explodes")
+
+				--! add animation to queue
+
             end
         end
     end
+end
+
+function functions.determineCombatOutcome(entity1, entity2)
+
+	local combatoutcomes = {}
+	-- row = enitity1; col = entity2
+	-- 0 means no damage; 1 means the entity1 takes damage; 2 means entity2 takes damage
+
+	--     v   p
+	-- v   0   1
+	-- p   2   0
+	combatoutcomes[1] = {0, 1}		-- row 1 = vessel
+	combatoutcomes[2] = {2, 0}		-- row 2 = projectile
+
+	local row, col
+	if entity1:has("vessel") then
+		row = 1
+	elseif entity1:has("projectile") then
+		row = 2
+	else
+		error()
+	end
+	if entity2:has("vessel") then
+		col = 1
+	elseif entity2:has("projectile") then
+		col = 2
+	else
+		print(entity1isborder, entity2isborder)
+		error()
+	end
+	local combatresult = combatoutcomes[row][col]
+
+	if combatresult == 0 then
+		-- do nothing
+	elseif combatresult == 1 then
+		-- entity1 takes damage
+		fun.damageEntity(entity1, entity2)		-- entity1 is damaged by entity2
+		-- destroy the ordinance
+		fun.killEntity(entity2)
+	elseif combatresult == 2 then
+		-- entity2 takes damage
+		fun.damageEntity(entity2, entity1)		-- entity2 is damaged by entity1
+		-- destroy the ordinance
+		fun.killEntity(entity1)
+	else
+		error()
+	end
 end
 
 return functions

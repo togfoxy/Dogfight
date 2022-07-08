@@ -37,8 +37,68 @@ local function getNewFacing(entity, dt)
     if newheading > 359 then newheading = newheading - 360 end
 
     return newheading
+
+	-- determine target
+		-- scan all targets and determine which one is closest to centre line
+
+		-- get entity x/y
+		-- local x,y = fun.getBodyXY(entity.uid.value)
+		-- add arbitrary distance in direction of facing
+		-- local facing = entity.facing.value
+		-- local distance = 5		-- remember these are BOX coordinates
+		-- local x1, x2 = cf.AddVectorToPoint(x,y,facing,distance)		-- x1, y1 is vector from origin to direction entity is facing. Important for dot product.
+
+		-- get deviation from straight ahead
+
+		-- for k, targetentity in pairs(ECS_ENTITIES) do
+			-- local targetx, targety = fun.getBodyXY(targetentity.uid.value)
+			-- local deltatargetx = targetx - x	-- the dot product assumes the same origin so need to translate
+			-- local deltatargety = targety - y
+			-- local dotv = cf.dotVectors(x1,x2, deltatargetx, deltatargety)
+			-- if dotv > 0 then
+				-- target is in front of entity
+				-- ! finish this
+
+				-- d = |a * targetx + b * targety + c|
+				-- d = d / sqroot(a^2 + b^2)
+
+
+				-- examples distance between 0,0 and 3x + 4y + 10 = 0
+
+
+			-- else
+				-- target is behind entity
+			-- end
+		-- end
+
+	-- determine sweet spot for each weapon
+		-- sweet spot for projectiles
+			-- look up q table
+		-- sweet spot for missiles
+			-- look up q table
+
+	-- determine closest sweet spot
+
+	-- if not in sweet spot then face to get into sweet spot
+
+	-- if in sweet spot then face to target
 end
 
+local function getNewDesiredFacing(entity)
+    -- get an entity that can be a target
+    for k, targetentity in pairs(ECS_ENTITIES) do
+        if targetentity ~= entity then
+            if targetentity:has("vessel") then
+                if targetentity.chassis.navy ~= entity.chassis.navy then
+                    -- found a legit target
+                    x1, y1 = fun.getBodyXY(entity.uid.value)            -- box2d coordinates
+                    x2, y2 = fun.getBodyXY(targetentity.uid.value)
+                    return cf.getBearing(x1,y1,x2,y2)
+                end
+            end
+        end
+    end
+end
 
 function ecsUpdate.init()
 
@@ -105,10 +165,11 @@ function ecsUpdate.init()
             if entity.facing.timer <= 0 then
                 -- new desired facing
                 entity.facing.desiredfacing = love.math.random(0,359)
+                entity.facing.desiredfacing = getNewDesiredFacing(entity)
                 entity.facing.timer = 5     -- seconds
             end
             if entity:has("engine") then
-                entity.facing.value = getNewFacing(entity, dt)
+                entity.facing.value = getNewFacing(entity, dt)      -- turns to desired facing
             end
         end
     end
