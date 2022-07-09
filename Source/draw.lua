@@ -27,6 +27,11 @@ function draw.HUD()
         love.graphics.print("Bullets remaining: " .. cf.round(SELECTED_VESSEL.gun_projectile.ammoRemaining), drawx, drawy)
 		drawy = drawy + 15
 
+        if SELECTED_VESSEL.coreData.distanceToTarget ~= nil then
+            love.graphics.print("Distance to target: " .. cf.round(SELECTED_VESSEL.coreData.distanceToTarget), drawx, drawy)
+            drawy = drawy + 15
+        end
+
 
         love.graphics.print("=====", drawx, drawy)
         drawy = drawy + 15

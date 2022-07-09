@@ -39,6 +39,8 @@ local function getNewFacing(entity, dt)
 end
 
 local function getNewTarget(entity)
+    -- returns the target (entity) as well as the distance to that entity
+    -- distance is in box2D units
     local newtarget
     local x, y = fun.getBodyXY(entity.uid.value)
     local facing = entity.facing.value
@@ -56,7 +58,9 @@ local function getNewTarget(entity)
 
                 if dotv > 0 then
                     -- target is in front of entity
-                    return targetentity
+                    local distanceToTarget = cf.GetDistance(x, y, targetx, targety)
+
+                    return targetentity, distanceToTarget
                 else
                 end
             end
@@ -67,10 +71,17 @@ end
 
 local function getNewDesiredFacing(entity, dt)
 
+    local targetentity      --! this is not implemented very well
     if entity:has("coreData") then
-        if entity.coreData.currentTarget == nil or entity.coreData.currentTargetTimer <= 0 then
+        if entity.coreData.currentTarget ~= nil then
+            targetentity = entity.coreData.currentTarget
+        end
+    end
+
+    if entity:has("coreData") then
+        if targetentity == nil or entity.coreData.currentTargetTimer <= 0 then
             -- find a new target
-            entity.coreData.currentTarget = getNewTarget(entity)
+            entity.coreData.currentTarget,  entity.coreData.distanceToTarget = getNewTarget(entity)
             if entity.coreData.currentTarget ~= nil then
                 entity.coreData.currentTargetTimer = 3
             else
@@ -81,8 +92,15 @@ local function getNewDesiredFacing(entity, dt)
         if entity.coreData.currentTarget ~= nil then
             -- turn towards target
             entity.coreData.currentTargetTimer = entity.coreData.currentTargetTimer - dt
+
+            -- get bearing form e1 to e2
+            -- add some lead in front of target
             local x1, y1 = fun.getBodyXY(entity.uid.value)            -- box2d coordinates
             local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
+            local entity2facing = entity.coreData.currentTarget.facing.value
+            local entity2leaddistance = 5       --! tweak or use qtable
+            local x2, y2 = cf.AddVectorToPoint(x2,y2,entity2facing,entity2leaddistance)
+
             if x2 ~= nil then
                 local newheading = cf.getBearing(x1, y1, x2, y2)
                 -- print("Desired heading is " .. newheading)
@@ -127,16 +145,39 @@ function ecsUpdate.init()
 			if entity.engine.hitpoints > 0 then
 				if entity:has("fueltank") then
 					if entity.fueltank.value > 0 then
-						local facing = entity.facing.value       -- 0 -> 359
-						local vectordistance = 5000 * dt
 						local x1,y1 = fun.getBodyXY(entity.uid.value)
+
+                        if entity.coreData.currentTarget ~= nil then
+                            local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
+                            local olddistance = entity.coreData.distanceToTarget
+                            local newdistance = cf.GetDistance(x1, y1, x2, y2)
+
+                            if newdistance < olddistance then
+                                entity.engine.throttle = entity.engine.throttle * (0.99)
+                            else
+                                entity.engine.throttle = entity.engine.throttle * (1.01)
+                            end
+
+                            if entity.engine.throttle < .10 then entity.engine.throttle = .10 end
+                            if entity.engine.throttle > 1 then entity.engine.throttle = 1 end
+
+            print(olddistance, newdistance, entity.engine.throttle)
+
+                        else
+                        end
+                        local force
+                        force = entity.engine.force * entity.engine.throttle * dt
+                        local facing = entity.facing.value       -- 0 -> 359
+						local vectordistance = 5000 * dt
+
 						local x2, y2 = cf.AddVectorToPoint(x1, y1, facing, vectordistance)
-						local xvector = (x2 - x1) * entity.engine.force * dt
-						local yvector = (y2 - y1) * entity.engine.force * dt
+
+						local xvector = (x2 - x1) * force
+						local yvector = (y2 - y1) * force
 						local physEntity = fun.getBody(entity.uid.value)
 						physEntity.body:applyForce(xvector, yvector)
 
-						local fuelused = entity.engine.force * dt
+						local fuelused = force
 						entity.fueltank.value = entity.fueltank.value - fuelused
 						entity.coreData.currentMass = entity.coreData.currentMass - (fuelused * FUEL_MASS)
 						if entity.coreData.currentMass < 0 then entity.coreData.currentMass = 0 end
@@ -165,7 +206,7 @@ function ecsUpdate.init()
             if entity.facing.timer <= 0  or entity.facing.desiredfacing == nil then
                 -- new desired facing
                 entity.facing.desiredfacing = getNewDesiredFacing(entity, dt)       -- turns towards target (if there is one)
-                entity.facing.timer = 1     -- seconds
+                entity.facing.timer = NEW_FACING_TIMER     -- seconds
             end
             if entity:has("engine") then
                 entity.facing.value = getNewFacing(entity, dt)      -- turns to desired facing as fast as rate allows
@@ -234,6 +275,13 @@ function ecsUpdate.init()
 			-- update physics mass with core data mass
 			-- local physEntity = fun.getBody(entity.uid.value)
 			-- physEntity.body:setMass(entity.coreData.currentMass)
+
+            if entity.coreData.currentTarget ~= nil then
+                -- update the distance to target
+                local x1, y1 = fun.getBodyXY(entity.uid.value)
+                local x2, y2 = fun.getBodyXY(entity.coreData.currentTarget.uid.value)
+                entity.coreData.distanceToTarget = cf.GetDistance(x1,y1,x2,y2)
+            end
 		end
 	end
 	ECSWORLD:addSystems(systemcoreData)
