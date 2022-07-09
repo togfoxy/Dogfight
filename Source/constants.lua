@@ -12,6 +12,8 @@ function constants.load()
     ECS_ENTITIES = {}
     PHYSICS_ENTITIES = {}
 
+	NEW_FACING_TIMER =	4		-- how frequently to seek a new facing
+
     RADIUSMASSRATIO = 5
 	VESSELS_SELECTED = 0
 	FUEL_MASS = 1				-- how much mass does one unit of fuel weigh

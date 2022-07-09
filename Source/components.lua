@@ -52,12 +52,13 @@ function cmp.init()
 	   c.currentmass = c.mass
        c.hitpoints = 100
        c.fConsumpption = 100
-       c.turnrate = 60      -- degrees
+       c.turnrate = 20      -- degrees
         if force == nil then
             c.force = 25     --!
         else
             c.force = force
         end
+        c.throttle = 1        -- a percentage of full force.  1 = 100%
    end)
 
    concord.component("gun_projectile", function(c)
@@ -82,6 +83,7 @@ function cmp.init()
    concord.component("coreData", function(c)
 	   c.currentMass = 0
        c.currentTarget = nil            -- an entity
+       c.distanceToTarget = nil
        c.currentTargetTimer = 0
    end)
 
